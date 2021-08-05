@@ -2,6 +2,7 @@ package software.plusminus.security.configs;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,6 +12,7 @@ import software.plusminus.context.Context;
 import software.plusminus.context.ThreadLocalContext;
 import software.plusminus.security.properties.SecurityProperties;
 
+@ComponentScan(basePackages = "software.plusminus.jwt")
 @Configuration
 public class SecurityConfig implements WebMvcConfigurer {
     
