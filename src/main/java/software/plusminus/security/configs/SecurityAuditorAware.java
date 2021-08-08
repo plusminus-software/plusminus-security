@@ -2,7 +2,7 @@ package software.plusminus.security.configs;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
-import software.plusminus.security.service.SecurityContext;
+import software.plusminus.security.context.SecurityContext;
 
 import java.util.Optional;
 

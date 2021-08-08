@@ -1,8 +1,8 @@
-package software.plusminus.security.service.device;
+package software.plusminus.security.context;
 
 import javax.annotation.Nullable;
 
-public interface DeviceService {
+public interface DeviceContext {
     
     @Nullable
     String currentDevice();

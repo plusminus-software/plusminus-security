@@ -1,4 +1,4 @@
-package software.plusminus.security.service;
+package software.plusminus.security.context;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

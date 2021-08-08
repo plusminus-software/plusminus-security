@@ -1,13 +1,12 @@
-package software.plusminus.security.service.device;
+package software.plusminus.security.context;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import software.plusminus.security.service.SecurityContext;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 
-@Service
-public class SecurityContextDeviceService implements DeviceService {
+@Component
+public class SecurityContextDeviceContext implements DeviceContext {
     
     @Autowired
     private SecurityContext securityContext;

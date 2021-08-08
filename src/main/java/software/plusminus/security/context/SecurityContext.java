@@ -1,12 +1,12 @@
-package software.plusminus.security.service;
+package software.plusminus.security.context;
 
 import lombok.experimental.Delegate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.context.Context;
 
-@Service
+@Component
 public class SecurityContext {
     
     private static final AuthenticationParameters EMPTY_CONTEXT = new AuthenticationParameters();
