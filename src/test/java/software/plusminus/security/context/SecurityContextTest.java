@@ -27,8 +27,9 @@ public class SecurityContextTest {
     
     @Test
     public void username() {
-        AuthenticationParameters parameters = new AuthenticationParameters();
-        parameters.setUsername(USERNAME);
+        AuthenticationParameters parameters = AuthenticationParameters.builder()
+                .username(USERNAME)
+                .build();
         when(container.get()).thenReturn(parameters);
         
         String username = securityContext.getUsername();
@@ -44,8 +45,9 @@ public class SecurityContextTest {
 
     @Test
     public void roles() {
-        AuthenticationParameters parameters = new AuthenticationParameters();
-        parameters.setRoles(Collections.singleton(ROLE));
+        AuthenticationParameters parameters = AuthenticationParameters.builder()
+                .roles(Collections.singleton(ROLE))
+                .build();
         when(container.get()).thenReturn(parameters);
         
         Set<String> result = securityContext.getRoles();

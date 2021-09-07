@@ -30,13 +30,17 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
 
-        AuthenticationParameters parameters = getSecurityParameters(request, response);
+        AuthenticationParameters parameters = getAuthenticationParameters(request, response);
         if (parameters == null) {
             response.sendRedirect(properties.getLoginPage());
             return;
         }
-        securityContext.set(parameters);
-        chain.doFilter(new SecuredRequest(request, parameters), response);
+        try {
+            securityContext.set(parameters);
+            chain.doFilter(new SecuredRequest(request, parameters), response);
+        } finally {
+            securityContext.set(null);
+        }
     }
 
     @Override
@@ -48,8 +52,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Nullable
-    private AuthenticationParameters getSecurityParameters(HttpServletRequest request, 
-                                                           HttpServletResponse response) {
+    private AuthenticationParameters getAuthenticationParameters(HttpServletRequest request,
+                                                                 HttpServletResponse response) {
         String cookie = CookieUtil.getValue(request, properties.getCookieName());
         if (cookie != null) {
             AuthenticationParameters securityParameters = authenticationService.parseToken(cookie);

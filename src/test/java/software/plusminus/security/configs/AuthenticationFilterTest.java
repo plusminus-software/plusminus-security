@@ -82,7 +82,7 @@ public class AuthenticationFilterTest {
     public void callsChain_IfAuthenticated() throws Exception {
         addCookies();
         when(authenticationService.parseToken(TOKEN))
-                .thenReturn(new AuthenticationParameters());
+                .thenReturn(AuthenticationParameters.builder().build());
 
         filter.doFilterInternal(request, response, chain);
 
@@ -115,8 +115,9 @@ public class AuthenticationFilterTest {
     @Test
     public void callsChainWithSecuredRequest_IfAuthenticated() throws Exception {
         addCookies();
-        AuthenticationParameters parameters = new AuthenticationParameters();
-        parameters.setUsername(USERNAME);
+        AuthenticationParameters parameters = AuthenticationParameters.builder()
+                .username(USERNAME)
+                .build();
         when(authenticationService.parseToken(TOKEN)).thenReturn(parameters);
 
         filter.doFilterInternal(request, response, chain);
@@ -129,7 +130,7 @@ public class AuthenticationFilterTest {
     @Test
     public void populatesSecurityContext_IfAuthenticated() throws Exception {
         addCookies();
-        AuthenticationParameters parameters = new AuthenticationParameters();
+        AuthenticationParameters parameters = AuthenticationParameters.builder().build();
         when(authenticationService.parseToken(TOKEN)).thenReturn(parameters);
 
         filter.doFilterInternal(request, response, chain);

@@ -16,9 +16,6 @@ public class AuthenticationParametersService {
     private HttpServletRequest request;
     
     public AuthenticationParameters createParameters(User user) {
-        AuthenticationParameters parameters = new AuthenticationParameters();
-        parameters.setUsername(user.getUsername());
-        parameters.setRoles(user.getRoles());
         HashMap<String, Object> otherParameters = new HashMap<>();
         otherParameters.put("tenant", user.getTenant());
         otherParameters.put("email", user.getEmail());
@@ -28,8 +25,10 @@ public class AuthenticationParametersService {
                 otherParameters.put("device", device);
             }
         }
-        parameters.setOtherParameters(otherParameters);
-        return parameters;
+        return AuthenticationParameters.builder()
+                .username(user.getUsername())
+                .roles(user.getRoles())
+                .otherParameters(otherParameters)
+                .build();
     }
-    
 }

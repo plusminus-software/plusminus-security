@@ -9,7 +9,8 @@ import software.plusminus.context.Context;
 @Component
 public class SecurityContext {
     
-    private static final AuthenticationParameters EMPTY_CONTEXT = new AuthenticationParameters();
+    private static final AuthenticationParameters EMPTY_CONTEXT = 
+            AuthenticationParameters.builder().build();
     
     @Autowired
     private Context<AuthenticationParameters> container;

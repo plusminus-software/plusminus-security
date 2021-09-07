@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class SecurityControllerTest {
 
     private static final String TEST_KEY = "test_token";
-    
+
     @Autowired
     private MockMvc mvc;
     @Autowired
@@ -59,19 +59,20 @@ public class SecurityControllerTest {
         user.setUsername(email);
         user.setTenant("testTenant");
         user.setRoles(Collections.singleton("testRolee"));
-        AuthenticationParameters parameters = new AuthenticationParameters();
-        parameters.setUsername(user.getUsername());
-        parameters.setRoles(user.getRoles());
         Map<String, Object> otherParameters = new HashMap<>();
         otherParameters.put("tenant", user.getTenant());
         otherParameters.put("email", user.getEmail());
-        parameters.setOtherParameters(otherParameters);
+        AuthenticationParameters parameters = AuthenticationParameters.builder()
+                .username(user.getUsername())
+                .roles(user.getRoles())
+                .otherParameters(otherParameters)
+                .build();
         when(userService.findUser(email, password))
                 .thenReturn(user);
         when(authenticationService.generateToken(parameters))
                 .thenReturn(TEST_KEY);
         when(authenticationService.parseToken(TEST_KEY))
-                .thenReturn(new AuthenticationParameters());
+                .thenReturn(AuthenticationParameters.builder().build());
     }
     
     @Test
@@ -114,5 +115,4 @@ public class SecurityControllerTest {
                 .andExpect(redirectedUrl("/"))
                 .andExpect(cookie().doesNotExist(properties.getCookieName()));
     }
-    
 }

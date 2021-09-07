@@ -18,6 +18,7 @@ import software.plusminus.security.MyEntityRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AuthorizationInterceptorHttpTest {
 
     private static final String TEST_KEY = "test_token";
-    
+
     @Autowired
     private MockMvc mvc;
     @Autowired
@@ -42,22 +43,16 @@ public class AuthorizationInterceptorHttpTest {
     private ObjectMapper objectMapper;
     @MockBean
     private AuthenticationService authenticationService;
-    
-    private AuthenticationParameters parameters;
 
     @Before
     public void setUp() {
         repository.deleteAll();
-        parameters = new AuthenticationParameters();
-        parameters.setUsername("my_username");
-        when(authenticationService.parseToken(TEST_KEY))
-                .thenReturn(parameters);
     }
 
     @Test
     public void read_ReturnsOkStatusAndResponseBody_IfTokenInHeaderIsValid() throws Exception {
         List<MyEntity> entities = populateDatabase();
-        parameters.setRoles(Collections.singleton("admin"));
+        createAuthenticationParameters(Collections.singleton("admin"));
 
         mvc.perform(get("/my-controller")
                 .header("Authorization", "Bearer " + TEST_KEY)
@@ -69,13 +64,23 @@ public class AuthorizationInterceptorHttpTest {
     @Test
     public void read_ReturnsForbidden_OfTokenDoesNotContainNeededRole() throws Exception {
         populateDatabase();
-        parameters.setRoles(Collections.singleton("not_admin"));
+        createAuthenticationParameters(Collections.singleton("not_admin"));
 
         mvc.perform(get("/my-controller")
                 .header("Authorization", "Bearer " + TEST_KEY)
                 .header("Content-type", "application/json"))
                 .andExpect(status().isForbidden())
                 .andExpect(content().string(""));
+    }
+    
+    private AuthenticationParameters createAuthenticationParameters(Set<String> roles) {
+        AuthenticationParameters parameters = AuthenticationParameters.builder()
+                .username("my_username")
+                .roles(roles)
+                .build();
+        when(authenticationService.parseToken(TEST_KEY))
+                .thenReturn(parameters);
+        return parameters;
     }
 
     private List<MyEntity> populateDatabase() {

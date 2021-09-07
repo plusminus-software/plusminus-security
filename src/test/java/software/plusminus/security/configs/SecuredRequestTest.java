@@ -13,14 +13,14 @@ import static org.mockito.Mockito.mock;
 
 public class SecuredRequestTest {
 
-    private AuthenticationParameters parameters;
     private SecuredRequest request;
 
     @Before
     public void setUp() {
-        parameters = new AuthenticationParameters();
-        parameters.setUsername("client_id");
-        parameters.setRoles(Collections.singleton("present_claim"));
+        AuthenticationParameters parameters = AuthenticationParameters.builder()
+                .username("client_id")
+                .roles(Collections.singleton("present_claim"))
+                .build();
         request = new SecuredRequest(mock(HttpServletRequest.class), parameters);
     }
 
