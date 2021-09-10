@@ -12,7 +12,7 @@ import software.plusminus.context.Context;
 import software.plusminus.context.ThreadLocalContext;
 import software.plusminus.security.properties.SecurityProperties;
 
-@ComponentScan(basePackages = "software.plusminus.jwt")
+@ComponentScan({"software.plusminus.security", "software.plusminus.jwt"})
 @Configuration
 public class SecurityConfig implements WebMvcConfigurer {
     
