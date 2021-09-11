@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import software.plusminus.authentication.AuthenticationService;
-import software.plusminus.security.SecurityConfig;
 
 import static software.plusminus.check.Checks.check;
 

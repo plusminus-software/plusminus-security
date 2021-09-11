@@ -1,23 +1,23 @@
-package software.plusminus.security;
+package software.plusminus.security.configs;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.authentication.AuthenticationService;
 import software.plusminus.context.Context;
 import software.plusminus.context.ThreadLocalContext;
-import software.plusminus.security.configs.AuthenticationFilter;
-import software.plusminus.security.configs.AuthorizationInterceptor;
 import software.plusminus.security.properties.SecurityProperties;
 
 @Configuration
 @ComponentScan({"software.plusminus.security", "software.plusminus.jwt"})
-@EnableAutoConfiguration
+@EntityScan("software.plusminus.security")
+@EnableJpaRepositories("software.plusminus.security")
 public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
