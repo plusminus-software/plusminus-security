@@ -1,5 +1,6 @@
-package software.plusminus.security.configs;
+package software.plusminus.security;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -10,17 +11,20 @@ import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.authentication.AuthenticationService;
 import software.plusminus.context.Context;
 import software.plusminus.context.ThreadLocalContext;
+import software.plusminus.security.configs.AuthenticationFilter;
+import software.plusminus.security.configs.AuthorizationInterceptor;
 import software.plusminus.security.properties.SecurityProperties;
 
-@ComponentScan({"software.plusminus.security", "software.plusminus.jwt"})
 @Configuration
+@ComponentScan({"software.plusminus.security", "software.plusminus.jwt"})
+@EnableAutoConfiguration
 public class SecurityConfig implements WebMvcConfigurer {
-    
+
     @Bean
     public Context<AuthenticationParameters> parametersContext() {
         return new ThreadLocalContext<>();
     }
-    
+
     @Bean
     public AuthenticationFilter authenticationFilter(SecurityProperties properties,
                                                      AuthenticationService authenticationService,
@@ -41,3 +45,4 @@ public class SecurityConfig implements WebMvcConfigurer {
         registry.addInterceptor(new AuthorizationInterceptor());
     }
 }
+

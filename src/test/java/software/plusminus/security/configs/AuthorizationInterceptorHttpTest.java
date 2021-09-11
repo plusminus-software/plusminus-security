@@ -15,6 +15,7 @@ import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.authentication.AuthenticationService;
 import software.plusminus.security.MyEntity;
 import software.plusminus.security.MyEntityRepository;
+import software.plusminus.security.SecurityConfig;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = SecurityConfig.class)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class AuthorizationInterceptorHttpTest {

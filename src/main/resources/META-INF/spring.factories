@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-software.plusminus.security.configs.SecurityConfig
+software.plusminus.security.SecurityConfig
