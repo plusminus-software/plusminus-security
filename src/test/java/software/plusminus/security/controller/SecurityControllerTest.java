@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.NestedServletException;
 import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.authentication.AuthenticationService;
-import software.plusminus.security.configs.SecurityConfig;
+import software.plusminus.security.configs.SecurityAutoconfig;
 import software.plusminus.security.model.User;
 import software.plusminus.security.properties.SecurityProperties;
 import software.plusminus.security.service.UserService;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = SecurityConfig.class)
+@SpringBootTest(classes = SecurityAutoconfig.class)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class SecurityControllerTest {

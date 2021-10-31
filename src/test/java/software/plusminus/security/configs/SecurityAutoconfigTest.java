@@ -12,10 +12,10 @@ import software.plusminus.authentication.AuthenticationService;
 import static software.plusminus.check.Checks.check;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = SecurityConfig.class)
+@SpringBootTest(classes = SecurityAutoconfig.class)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class SecurityConfigTest {
+public class SecurityAutoconfigTest {
     
     @Autowired(required = false)
     private AuthenticationService authenticationService;

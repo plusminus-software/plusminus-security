@@ -18,7 +18,7 @@ import software.plusminus.security.properties.SecurityProperties;
 @ComponentScan({"software.plusminus.security", "software.plusminus.jwt"})
 @EntityScan("software.plusminus.security")
 @EnableJpaRepositories("software.plusminus.security")
-public class SecurityConfig implements WebMvcConfigurer {
+public class SecurityAutoconfig implements WebMvcConfigurer {
 
     @Bean
     public Context<AuthenticationParameters> parametersContext() {
