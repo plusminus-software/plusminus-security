@@ -1,5 +1,6 @@
 package software.plusminus.security.configs;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,7 @@ import software.plusminus.context.ThreadLocalContext;
 import software.plusminus.security.properties.SecurityProperties;
 
 @Configuration
+@ConditionalOnProperty("security.enabled")
 @ComponentScan("software.plusminus.security")
 @EntityScan("software.plusminus.security")
 @EnableJpaRepositories("software.plusminus.security")
