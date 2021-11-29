@@ -12,7 +12,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.authentication.AuthenticationService;
 import software.plusminus.context.Context;
-import software.plusminus.context.ThreadLocalContext;
 import software.plusminus.security.properties.SecurityProperties;
 
 @Configuration
@@ -21,11 +20,6 @@ import software.plusminus.security.properties.SecurityProperties;
 @EntityScan("software.plusminus.security")
 @EnableJpaRepositories("software.plusminus.security")
 public class SecurityAutoconfig implements WebMvcConfigurer {
-
-    @Bean
-    public Context<AuthenticationParameters> parametersContext() {
-        return new ThreadLocalContext<>();
-    }
 
     @Bean
     public AuthenticationFilter authenticationFilter(SecurityProperties properties,
