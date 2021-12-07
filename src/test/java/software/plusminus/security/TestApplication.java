@@ -4,10 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 import software.plusminus.security.configs.SecurityAutoconfig;
-import software.plusminus.security.configs.SecurityContextAutoconfig;
 
 @SpringBootApplication
-@Import({SecurityAutoconfig.class, SecurityContextAutoconfig.class})
+@Import(SecurityAutoconfig.class)
 public class TestApplication {
     public static void main(String[] args) {
         SpringApplication.run(TestApplication.class, args);
