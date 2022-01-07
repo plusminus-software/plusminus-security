@@ -1,6 +1,8 @@
 package software.plusminus.security.controller;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.hibernate.Filter;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +17,9 @@ import software.plusminus.security.service.AuthenticationParametersService;
 import software.plusminus.security.service.UserService;
 import software.plusminus.security.util.CookieUtil;
 
+import javax.annotation.Nullable;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Pattern;
 
@@ -32,17 +37,34 @@ public class SecurityController {
     private AuthenticationService authenticationService;
     @Autowired
     private SecurityProperties properties;
+    @PersistenceContext
+    private EntityManager entityManager;
 
+    @SuppressWarnings("PMD.CloseResource")
     @SuppressFBWarnings(value = "SPRING_UNVALIDATED_REDIRECT",
             justification = "False-positive: the redirect is validated with @Pattern annotation")
     @PostMapping("/login")
-    public String login(HttpServletResponse httpServletResponse,
+    public String login(HttpServletResponse response,
                         String email,
                         String password,
+                        @Nullable String tenant,
                         @Pattern(regexp = RELATIVE_URI_REGEX) @RequestParam(required = false) String redirect,
                         Model model) {
 
-        User user = userService.findUser(email, password);
+        User user;
+        
+        if (tenant == null) {
+            tenant = "";
+        }
+        Session session = entityManager.unwrap(Session.class);
+        try {
+            Filter filter = session.enableFilter("tenantFilter");
+            filter.setParameter("tenant", tenant);
+            user = userService.findUser(email, password);
+        } finally {
+            session.disableFilter("tenantFilter");
+        }
+        
         if (user == null) {
             model.addAttribute("error",
                     "Invalid username or password!");
@@ -51,7 +73,7 @@ public class SecurityController {
 
         AuthenticationParameters parameters = authenticationParametersService.createParameters(user);
         String token = authenticationService.generateToken(parameters);
-        CookieUtil.create(httpServletResponse,
+        CookieUtil.create(response,
                 properties.getCookieName(),
                 token,
                 "localhost");
@@ -62,8 +84,8 @@ public class SecurityController {
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletResponse httpServletResponse) {
-        CookieUtil.clear(httpServletResponse, properties.getCookieName());
+    public String logout(HttpServletResponse response) {
+        CookieUtil.clear(response, properties.getCookieName());
         return "redirect:/";
     }
 

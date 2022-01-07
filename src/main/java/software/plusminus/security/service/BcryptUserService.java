@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import software.plusminus.security.model.User;
 import software.plusminus.security.repository.UserRepository;
 
+import javax.annotation.Nullable;
+
 @Service
 @Transactional
 public class BcryptUserService implements UserService {
@@ -19,6 +21,7 @@ public class BcryptUserService implements UserService {
         return userRepository.findByEmail(email) != null;
     }
 
+    @Nullable
     @Override
     public User findUser(String email, String password) {
         User user = userRepository.findByEmail(email);
