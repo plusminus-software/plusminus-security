@@ -17,6 +17,8 @@ import software.plusminus.security.service.AuthenticationParametersService;
 import software.plusminus.security.service.UserService;
 import software.plusminus.security.util.CookieUtil;
 
+import java.util.Collections;
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -48,6 +50,7 @@ public class SecurityController {
                         String email,
                         String password,
                         @Nullable String tenant,
+                        @Nullable String device,
                         @Pattern(regexp = RELATIVE_URI_REGEX) @RequestParam(required = false) String redirect,
                         Model model) {
 
@@ -71,7 +74,14 @@ public class SecurityController {
             return "index";
         }
 
-        AuthenticationParameters parameters = authenticationParametersService.createParameters(user);
+        Map<String, Object> additionalParameters;
+        if (device == null) {
+            additionalParameters = Collections.emptyMap();
+        } else {
+            additionalParameters = Collections.singletonMap("device", device);
+        }
+        AuthenticationParameters parameters =
+                authenticationParametersService.createParameters(user, additionalParameters);
         String token = authenticationService.generateToken(parameters);
         CookieUtil.create(response,
                 properties.getCookieName(),

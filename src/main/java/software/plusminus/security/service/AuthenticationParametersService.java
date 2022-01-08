@@ -1,30 +1,20 @@
 package software.plusminus.security.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
 import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.security.model.User;
 
-import java.util.HashMap;
-import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Service
 public class AuthenticationParametersService {
     
-    @Autowired
-    private HttpServletRequest request;
-    
-    public AuthenticationParameters createParameters(User user) {
-        HashMap<String, Object> otherParameters = new HashMap<>();
+    public AuthenticationParameters createParameters(User user, Map<String, Object> additionalParameters) {
+        Map<String, Object> otherParameters = new LinkedHashMap<>();
         otherParameters.put("tenant", user.getTenant());
         otherParameters.put("email", user.getEmail());
-        if (RequestContextHolder.getRequestAttributes() != null) {
-            String device = request.getHeader("Device");
-            if (device != null) {
-                otherParameters.put("device", device);
-            }
-        }
+        otherParameters.putAll(additionalParameters);
         return AuthenticationParameters.builder()
                 .username(user.getUsername())
                 .roles(user.getRoles())
