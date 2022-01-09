@@ -31,24 +31,19 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
 
         AuthenticationParameters parameters = getAuthenticationParameters(request, response);
-        if (parameters == null) {
+        if (parameters != null) {
+            try {
+                securityContext.set(parameters);
+                chain.doFilter(new SecuredRequest(request, parameters), response);
+            } finally {
+                securityContext.set(null);
+            }
+        } else if (isOpenUrl(request)) {
+            chain.doFilter(request, response);
+        } else {
             response.sendRedirect(properties.getLoginPage());
             return;
         }
-        try {
-            securityContext.set(parameters);
-            chain.doFilter(new SecuredRequest(request, parameters), response);
-        } finally {
-            securityContext.set(null);
-        }
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request)
-            throws ServletException {
-
-        return properties.getOpenUrls().stream()
-                .anyMatch(request.getRequestURI()::matches);
     }
 
     @Nullable
@@ -76,5 +71,13 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
         
         return null;
+    }
+    
+    private boolean isOpenUrl(HttpServletRequest request) {
+        if (request.getRequestURI() == null) {
+            return false;
+        }
+        return properties.getOpenUrls().stream()
+                .anyMatch(request.getRequestURI()::matches);
     }
 }

@@ -139,24 +139,24 @@ public class AuthenticationFilterTest {
     }
 
     @Test
-    public void shouldNotFilterLoginPage() throws Exception {
+    public void shouldNotAuthenticateLoginPage() throws Exception {
         when(request.getRequestURI()).thenReturn("/login");
-        boolean result = filter.shouldNotFilter(request);
-        assertThat(result).isTrue();
+        filter.doFilterInternal(request, response, chain);
+        verify(chain).doFilter(request, response);
     }
 
     @Test
-    public void shouldNotFilterHealthEndpoint() throws Exception {
+    public void shouldNotAuthenticateHealthEndpoint() throws Exception {
         when(request.getRequestURI()).thenReturn("/health");
-        boolean result = filter.shouldNotFilter(request);
-        assertThat(result).isTrue();
+        filter.doFilterInternal(request, response, chain);
+        verify(chain).doFilter(request, response);
     }
 
     @Test
-    public void shouldFilterRegularUrl() throws Exception {
+    public void shouldAuthenticateRegularUrl() throws Exception {
         when(request.getRequestURI()).thenReturn("/regular");
-        boolean result = filter.shouldNotFilter(request);
-        assertThat(result).isFalse();
+        filter.doFilterInternal(request, response, chain);
+        verify(chain, never()).doFilter(any(), any());
     }
 
     private void addCookies() {
