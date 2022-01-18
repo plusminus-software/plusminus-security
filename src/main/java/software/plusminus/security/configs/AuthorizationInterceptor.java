@@ -1,48 +1,40 @@
 package software.plusminus.security.configs;
 
-import org.springframework.web.method.HandlerMethod;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import software.plusminus.security.service.check.SecurityCheck;
 
-import java.util.Collection;
-import java.util.Collections;
-import javax.annotation.security.RolesAllowed;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static java.util.Arrays.asList;
-
+@Slf4j
+@AllArgsConstructor
 public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
 
+    private List<SecurityCheck> checks;
+    
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
 
-        if (!(handler instanceof HandlerMethod)) {
+        if (!(request instanceof SecuredRequest)) {
             return true;
         }
-
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        if (requestMatchesDeclaredRoles(request, handlerMethod)) {
-            return true;
+        
+        SecuredRequest securedRequest = (SecuredRequest) request;
+        List<SecurityCheck> failedChecks = checks.stream()
+                .filter(check -> !check.check(securedRequest, handler))
+                .collect(Collectors.toList());
+        if (!failedChecks.isEmpty()) {
+            log.info("Failed SecurityChecks: {}", failedChecks);
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return false;
         }
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        return false;
-    }
-
-    private boolean requestMatchesDeclaredRoles(HttpServletRequest request,
-                                                HandlerMethod handler) {
-
-        Collection<String> declaredRolesRoles = getDeclaredRoles(handler);
-        return declaredRolesRoles.isEmpty()
-                || declaredRolesRoles.stream().anyMatch(request::isUserInRole);
-    }
-
-    private Collection<String> getDeclaredRoles(HandlerMethod handler) {
-        RolesAllowed methodAnnotation = handler.getMethodAnnotation(RolesAllowed.class);
-        return methodAnnotation == null
-                ? Collections.emptyList()
-                : asList(methodAnnotation.value());
+        return true;
     }
 
 }

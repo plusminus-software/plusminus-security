@@ -18,9 +18,8 @@ import org.springframework.web.util.NestedServletException;
 import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.authentication.AuthenticationService;
 import software.plusminus.security.configs.SecurityAutoconfig;
-import software.plusminus.security.model.User;
 import software.plusminus.security.properties.SecurityProperties;
-import software.plusminus.security.service.UserService;
+import software.plusminus.security.service.LoginService;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,28 +47,23 @@ public class SecurityControllerTest {
     @MockBean
     private AuthenticationService authenticationService;
     @MockBean
-    private UserService userService;
+    private LoginService loginService;
 
     private String email = "testEmail";
     private String password = "testPassword";
     
     @Before
     public void setUp() {
-        User user = new User();
-        user.setEmail(email);
-        user.setUsername(email);
-        user.setTenant("testTenant");
-        user.setRoles(Collections.singleton("testRolee"));
         Map<String, Object> otherParameters = new HashMap<>();
-        otherParameters.put("tenant", user.getTenant());
-        otherParameters.put("email", user.getEmail());
+        otherParameters.put("tenant", "testTenant");
+        otherParameters.put("email", email);
         AuthenticationParameters parameters = AuthenticationParameters.builder()
-                .username(user.getUsername())
-                .roles(user.getRoles())
+                .username(email)
+                .roles(Collections.singleton("testRolee"))
                 .otherParameters(otherParameters)
                 .build();
-        when(userService.findUser(email, password))
-                .thenReturn(user);
+        when(loginService.login(email, password, null))
+                .thenReturn(parameters);
         when(authenticationService.generateToken(parameters))
                 .thenReturn(TEST_KEY);
         when(authenticationService.parseToken(TEST_KEY))

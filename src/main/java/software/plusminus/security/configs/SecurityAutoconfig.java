@@ -1,5 +1,6 @@
 package software.plusminus.security.configs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,9 @@ import software.plusminus.authentication.AuthenticationService;
 import software.plusminus.context.Context;
 import software.plusminus.context.ThreadLocalContext;
 import software.plusminus.security.properties.SecurityProperties;
+import software.plusminus.security.service.check.SecurityCheck;
+
+import java.util.List;
 
 @Configuration
 @ComponentScan("software.plusminus.security")
@@ -20,6 +24,9 @@ import software.plusminus.security.properties.SecurityProperties;
 @EnableJpaRepositories("software.plusminus.security")
 public class SecurityAutoconfig implements WebMvcConfigurer {
 
+    @Autowired
+    private List<SecurityCheck> checks;
+    
     @Bean
     public AuthenticationFilter authenticationFilter(SecurityProperties properties,
                                                      AuthenticationService authenticationService,
@@ -42,7 +49,7 @@ public class SecurityAutoconfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthorizationInterceptor());
+        registry.addInterceptor(new AuthorizationInterceptor(checks));
     }
 }
 

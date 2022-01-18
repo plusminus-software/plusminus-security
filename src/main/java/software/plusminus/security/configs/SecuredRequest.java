@@ -31,4 +31,8 @@ public class SecuredRequest extends HttpServletRequestWrapper {
     public boolean isUserInRole(String role) {
         return parameters.getRoles().contains(role);
     }
+
+    public AuthenticationParameters getAuthenticationParameters() {
+        return parameters;
+    }
 }
