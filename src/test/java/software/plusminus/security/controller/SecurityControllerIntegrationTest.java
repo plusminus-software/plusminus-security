@@ -81,6 +81,38 @@ public class SecurityControllerIntegrationTest {
     }
     
     @Test
+    public void loginWithTenantFromEmail() throws Exception {
+        String specificEmail = "test+taskSpecificAddress@mail.com";
+        String specificTenant = email;
+        User user = new User();
+        user.setEmail(specificEmail);
+        user.setUsername(specificEmail);
+        user.setTenant(specificTenant);
+        user.setRoles(Collections.singleton(role));
+        user.setPassword(password);
+        userService.register(user);
+        
+        MvcResult result = mvc.perform(post("/login")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("tenantFromEmail", "true")
+                .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                        new BasicNameValuePair("email", specificEmail),
+                        new BasicNameValuePair("password", password))))))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/unimarket/index.html"))
+                .andReturn();
+
+        Cookie cookie = result.getResponse().getCookie(properties.getCookieName());
+        check(cookie).isNotNull();
+
+        String jwt = cookie.getValue();
+        AuthenticationParameters parameters = authenticationService.parseToken(jwt);
+        check(parameters.getUsername()).is(specificEmail);
+        check(parameters.getRoles()).is(role);
+        check(parameters.getOtherParameters().get("tenant")).is(specificTenant);
+    }
+    
+    @Test
     public void loginWithRelativeRedirect() throws Exception {
         MvcResult result = mvc.perform(post("/login?redirect=/test")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)

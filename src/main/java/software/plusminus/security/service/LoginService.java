@@ -28,7 +28,7 @@ public class LoginService {
 
     @SuppressWarnings("PMD.CloseResource")
     @Nullable
-    public AuthenticationParameters login(String email, String password, @Nullable String tenant) {
+    public AuthenticationParameters login(String username, String password, @Nullable String tenant) {
         if (tenant == null) {
             tenant = "";
         }
@@ -38,7 +38,7 @@ public class LoginService {
         try {
             Filter filter = session.enableFilter("tenantFilter");
             filter.setParameter("tenant", tenant);
-            user = userService.findUser(email, password);
+            user = userService.findUser(username, password);
         } finally {
             session.disableFilter("tenantFilter");
         }

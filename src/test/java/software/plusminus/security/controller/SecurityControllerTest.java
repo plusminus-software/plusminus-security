@@ -49,7 +49,7 @@ public class SecurityControllerTest {
     @MockBean
     private LoginService loginService;
 
-    private String email = "testEmail";
+    private String email = "test@email.com";
     private String password = "testPassword";
     
     @Before
@@ -101,6 +101,15 @@ public class SecurityControllerTest {
                 .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
                         new BasicNameValuePair("email", email),
                         new BasicNameValuePair("password", password))))));
+    }
+    
+    public void loginWithIncorrectEmail() throws Exception {
+        mvc.perform(post("/login")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                        new BasicNameValuePair("email", "incorrectEmail"),
+                        new BasicNameValuePair("password", password))))))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

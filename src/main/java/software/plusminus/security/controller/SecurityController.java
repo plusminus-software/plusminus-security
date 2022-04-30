@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import software.plusminus.authentication.AuthenticationParameters;
 import software.plusminus.authentication.AuthenticationService;
+import software.plusminus.security.exception.SecurityException;
 import software.plusminus.security.properties.SecurityProperties;
 import software.plusminus.security.service.LoginService;
 import software.plusminus.security.util.CookieUtil;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 
 @Validated
@@ -34,13 +36,16 @@ public class SecurityController {
             justification = "False-positive: the redirect is validated with @Pattern annotation")
     @PostMapping("/login")
     public String login(HttpServletResponse response,
-                        String email,
+                        @Email String email,
                         String password,
                         @Nullable String tenant,
+                        @RequestParam(required = false) boolean tenantFromEmail,
                         @Pattern(regexp = RELATIVE_URI_REGEX) @RequestParam(required = false) String redirect,
                         Model model) {
 
-
+        if (tenant == null && tenantFromEmail) {
+            tenant = getTenantFromEmail(email);
+        }
         AuthenticationParameters parameters = loginService.login(email, password, tenant);
         if (parameters == null) {
             model.addAttribute("error",
@@ -64,4 +69,12 @@ public class SecurityController {
         return "redirect:/";
     }
 
+    private String getTenantFromEmail(String email) {
+        int start = email.indexOf("+");
+        int end = email.indexOf("@");
+        if (start == -1 || end == -1 || start > end) {
+            throw new SecurityException("Incorrect email to get tenant: '" + email + "'");
+        }
+        return email.substring(0, start) + email.substring(end, email.length());
+    }
 }

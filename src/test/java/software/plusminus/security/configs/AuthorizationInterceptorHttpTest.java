@@ -52,7 +52,7 @@ public class AuthorizationInterceptorHttpTest {
     @Test
     public void read_ReturnsOkStatusAndResponseBody_IfTokenInHeaderIsValid() throws Exception {
         List<MyEntity> entities = populateDatabase();
-        createAuthenticationParameters(Collections.singleton("admin"));
+        mockAuthenticationParameters(Collections.singleton("admin"));
 
         mvc.perform(get("/my-controller")
                 .header("Authorization", "Bearer " + TEST_KEY)
@@ -62,9 +62,9 @@ public class AuthorizationInterceptorHttpTest {
     }
 
     @Test
-    public void read_ReturnsForbidden_OfTokenDoesNotContainNeededRole() throws Exception {
+    public void read_ReturnsForbidden_IfTokenDoesNotContainNeededRole() throws Exception {
         populateDatabase();
-        createAuthenticationParameters(Collections.singleton("not_admin"));
+        mockAuthenticationParameters(Collections.singleton("not_admin"));
 
         mvc.perform(get("/my-controller")
                 .header("Authorization", "Bearer " + TEST_KEY)
@@ -73,14 +73,13 @@ public class AuthorizationInterceptorHttpTest {
                 .andExpect(content().string(""));
     }
     
-    private AuthenticationParameters createAuthenticationParameters(Set<String> roles) {
+    private void mockAuthenticationParameters(Set<String> roles) {
         AuthenticationParameters parameters = AuthenticationParameters.builder()
                 .username("my_username")
                 .roles(roles)
                 .build();
         when(authenticationService.parseToken(TEST_KEY))
                 .thenReturn(parameters);
-        return parameters;
     }
 
     private List<MyEntity> populateDatabase() {
