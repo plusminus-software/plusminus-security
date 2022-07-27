@@ -1,55 +1,20 @@
 package software.plusminus.security.configs;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import software.plusminus.authentication.AuthenticationParameters;
-import software.plusminus.authentication.AuthenticationService;
-import software.plusminus.context.Context;
-import software.plusminus.context.ThreadLocalContext;
-import software.plusminus.security.properties.SecurityProperties;
-import software.plusminus.security.service.check.SecurityCheck;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-import java.util.List;
-
+@EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @Configuration
 @ComponentScan("software.plusminus.security")
-@EntityScan("software.plusminus.security")
-@EnableJpaRepositories("software.plusminus.security")
-public class SecurityAutoconfig implements WebMvcConfigurer {
-
-    @Autowired
-    private List<SecurityCheck> checks;
+public class SecurityAutoconfig {
     
     @Bean
-    public AuthenticationFilter authenticationFilter(SecurityProperties properties,
-                                                     AuthenticationService authenticationService,
-                                                     Context<AuthenticationParameters> parametersContext) {
-        return new AuthenticationFilter(properties, authenticationService, parametersContext);
+    public AuditorAware<String> auditorProvider() {
+        return new SecurityAuditorAware();
     }
-
-    @Bean
-    public FilterRegistrationBean authenticationFilterRegistration(AuthenticationFilter authenticationFilter) {
-        FilterRegistrationBean<AuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(authenticationFilter);
-        registrationBean.addUrlPatterns("/*");
-        return registrationBean;
-    }
-
-    @Bean
-    public Context<AuthenticationParameters> parametersContext() {
-        return new ThreadLocalContext<>();
-    }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthorizationInterceptor(checks));
-    }
+    
 }
 

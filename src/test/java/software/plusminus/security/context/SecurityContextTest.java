@@ -1,12 +1,15 @@
 package software.plusminus.security.context;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import software.plusminus.authentication.AuthenticationParameters;
-import software.plusminus.context.Context;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import software.plusminus.security.Security;
+import software.plusminus.security.SecurityRequest;
 
 import java.util.Collections;
 import java.util.Set;
@@ -21,16 +24,21 @@ public class SecurityContextTest {
     private static final String ROLE = "testRole";
     
     @Mock
-    private Context<AuthenticationParameters> container;
+    private SecurityRequest request;
     @InjectMocks
     private SecurityContext securityContext;
     
+    @Before
+    public void before() {
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    }
+    
     @Test
     public void username() {
-        AuthenticationParameters parameters = AuthenticationParameters.builder()
+        Security security = Security.builder()
                 .username(USERNAME)
                 .build();
-        when(container.get()).thenReturn(parameters);
+        when(request.getSecurity()).thenReturn(security);
         
         String username = securityContext.getUsername();
         
@@ -45,10 +53,10 @@ public class SecurityContextTest {
 
     @Test
     public void roles() {
-        AuthenticationParameters parameters = AuthenticationParameters.builder()
+        Security security = Security.builder()
                 .roles(Collections.singleton(ROLE))
                 .build();
-        when(container.get()).thenReturn(parameters);
+        when(request.getSecurity()).thenReturn(security);
         
         Set<String> result = securityContext.getRoles();
         

@@ -7,14 +7,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import software.plusminus.authentication.AuthenticationParameters;
-import software.plusminus.authentication.AuthenticationService;
+import software.plusminus.jwt.service.JwtGenerator;
 import software.plusminus.security.MyEntity;
 import software.plusminus.security.MyEntityRepository;
+import software.plusminus.security.Security;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,9 +21,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.mockito.Mockito.when;
+import javax.servlet.http.Cookie;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -33,16 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class AuthorizationInterceptorHttpTest {
 
-    private static final String TEST_KEY = "test_token";
-
     @Autowired
     private MockMvc mvc;
     @Autowired
     private MyEntityRepository repository;
     @Autowired
     private ObjectMapper objectMapper;
-    @MockBean
-    private AuthenticationService authenticationService;
+    @Autowired
+    private JwtGenerator generator;
 
     @Before
     public void setUp() {
@@ -50,36 +49,78 @@ public class AuthorizationInterceptorHttpTest {
     }
 
     @Test
-    public void read_ReturnsOkStatusAndResponseBody_IfTokenInHeaderIsValid() throws Exception {
+    public void goodTokenInHeader() throws Exception {
         List<MyEntity> entities = populateDatabase();
-        mockAuthenticationParameters(Collections.singleton("admin"));
+        String token = getToken(Collections.singleton("admin"));
 
         mvc.perform(get("/my-controller")
-                .header("Authorization", "Bearer " + TEST_KEY)
+                .header("Authorization", "Bearer " + token)
                 .header("Content-type", "application/json"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(entities)));
+    }
+    
+    @Test
+    public void goodTokenInCookies() throws Exception {
+        List<MyEntity> entities = populateDatabase();
+        String token = getToken(Collections.singleton("admin"));
+
+        mvc.perform(get("/my-controller")
+                .header("Content-type", "application/json")
+                .cookie(new Cookie("JWT-TOKEN", token)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(entities)));
     }
 
     @Test
-    public void read_ReturnsForbidden_IfTokenDoesNotContainNeededRole() throws Exception {
-        populateDatabase();
-        mockAuthenticationParameters(Collections.singleton("not_admin"));
+    public void missedRole() throws Exception {
+        String token = getToken(Collections.singleton("not_admin"));
 
         mvc.perform(get("/my-controller")
-                .header("Authorization", "Bearer " + TEST_KEY)
+                .header("Authorization", "Bearer " + token)
                 .header("Content-type", "application/json"))
                 .andExpect(status().isForbidden())
                 .andExpect(content().string(""));
     }
     
-    private void mockAuthenticationParameters(Set<String> roles) {
-        AuthenticationParameters parameters = AuthenticationParameters.builder()
-                .username("my_username")
+    @Test
+    public void badToken() throws Exception {
+        mvc.perform(get("/my-controller")
+                .header("Authorization", "Bad token")
+                .header("Content-type", "application/json"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(""));
+    }
+    
+    @Test
+    public void missedToken() throws Exception {
+        mvc.perform(get("/my-controller")
+                .header("Content-type", "application/json"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(""));
+    }
+    
+    @Test
+    public void notLoggedInUserOpensNonPublicEndpoint() throws Exception {
+        mvc.perform(get("/my-controller")
+                .header("Content-type", "application/json")
+                .header("Accept", "text/html"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"));
+    }
+    
+    @Test
+    public void openedUri() throws Exception {
+        mvc.perform(get("/opened"))
+                .andExpect(status().isOk());
+    }
+    
+    private String getToken(Set<String> roles) {
+        Security security = Security.builder()
+                .username("test-username")
                 .roles(roles)
                 .build();
-        when(authenticationService.parseToken(TEST_KEY))
-                .thenReturn(parameters);
+        return generator.generateAccessToken(security);
     }
 
     private List<MyEntity> populateDatabase() {

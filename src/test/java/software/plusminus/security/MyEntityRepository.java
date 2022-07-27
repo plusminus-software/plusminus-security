@@ -13,8 +13,8 @@ public interface MyEntityRepository extends PagingAndSortingRepository<MyEntity,
     void deleteAll();
 
     @Modifying
-    //@Query(value = "ALTER TABLE my_standard_entity ALTER COLUMN id RESTART WITH 1", nativeQuery = true)
-    @Query(value = "ALTER TABLE my_standard_entity AUTO_INCREMENT = 1", nativeQuery = true)
+    @Query(value = "ALTER TABLE my_entity ALTER COLUMN id RESTART WITH 1", nativeQuery = true)
+    //@Query(value = "ALTER TABLE my_entity AUTO_INCREMENT = 1", nativeQuery = true)
     @Transactional
     void resetAutoIncrement();
 }
