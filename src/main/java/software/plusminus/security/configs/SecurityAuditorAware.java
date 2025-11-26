@@ -1,23 +1,20 @@
 package software.plusminus.security.configs;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
-import software.plusminus.security.context.SecurityContext;
+import software.plusminus.context.Context;
+import software.plusminus.security.Security;
 
 import java.util.Optional;
 
+@AllArgsConstructor
 public class SecurityAuditorAware implements AuditorAware<String> {
 
-    @Autowired
-    private SecurityContext securityContext;
+    private Context<Security> securityContext;
     
     @Override
     public Optional<String> getCurrentAuditor() {
-        String username = securityContext.getUsername();
-        if (username == null) {
-            return Optional.empty();
-        }
-        return Optional.of(username);
+        return securityContext.optional()
+                .map(Security::getUsername);
     }
-
 }

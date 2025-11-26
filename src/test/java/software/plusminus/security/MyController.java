@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import software.plusminus.authentication.annotation.Public;
-import software.plusminus.security.context.SecurityContext;
+import software.plusminus.context.Context;
 
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 
@@ -18,7 +19,7 @@ import javax.annotation.security.RolesAllowed;
 public class MyController {
 
     @Autowired
-    private SecurityContext securityContext;
+    private Context<Security> securityContext;
     @Autowired
     private MyEntityRepository repository;
 
@@ -44,9 +45,15 @@ public class MyController {
     @GetMapping("/security-context")
     public Security securityContext() {
         return Security.builder()
-                .username(securityContext.getUsername())
-                .roles(securityContext.getRoles())
-                .others(securityContext.getOthers())
+                .username(securityContext.optional()
+                        .map(Security::getUsername)
+                        .orElse(null))
+                .roles(securityContext.optional()
+                        .map(Security::getRoles)
+                        .orElse(Collections.emptySet()))
+                .others(securityContext.optional()
+                        .map(Security::getOthers)
+                        .orElse(Collections.emptyMap()))
                 .build();
     }
 }

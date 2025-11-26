@@ -1,16 +1,21 @@
 package software.plusminus.security.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import software.plusminus.authentication.service.token.HttpTokenContext;
+import software.plusminus.context.Context;
+import software.plusminus.jwt.service.IssuerContext;
 import software.plusminus.jwt.service.JwtGenerator;
 import software.plusminus.security.MyEntity;
 import software.plusminus.security.MyEntityRepository;
@@ -21,9 +26,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.servlet.http.Cookie;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -33,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@TestPropertySource(properties = "security.loginPage=/login")
+@TestPropertySource(properties = "plusminus.security.loginPage=/login")
 public class AuthorizationInterceptorHttpTest {
 
     @Autowired
@@ -45,9 +50,19 @@ public class AuthorizationInterceptorHttpTest {
     @Autowired
     private JwtGenerator generator;
 
+    @MockBean
+    private IssuerContext issuerContext;
+
     @Before
     public void setUp() {
+        Context.init();
         repository.deleteAll();
+        when(issuerContext.get()).thenReturn("localhost");
+    }
+
+    @After
+    public void tearDown() {
+        Context.clear();
     }
 
     @Test
@@ -69,7 +84,7 @@ public class AuthorizationInterceptorHttpTest {
 
         mvc.perform(get("/my-controller")
                 .header("Content-type", "application/json")
-                .cookie(new Cookie("JWT-TOKEN", token)))
+                .cookie(new Cookie(HttpTokenContext.COOKIE_NAME, token)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(entities)));
     }

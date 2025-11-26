@@ -47,14 +47,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-        </dependency>
-        <dependency>
             <groupId>software.plusminus</groupId>
             <artifactId>plusminus-security-core</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -89,17 +81,6 @@
             <groupId>software.plusminus</groupId>
             <artifactId>plusminus-test</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>software.plusminus</groupId>
-            <artifactId>plusminus-jwt-test</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -7,9 +7,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import software.plusminus.context.Context;
+import software.plusminus.jwt.service.IssuerContext;
 import software.plusminus.jwt.service.JwtGenerator;
 import software.plusminus.security.MyEntity;
 import software.plusminus.security.MyEntityRepository;
@@ -18,6 +21,7 @@ import software.plusminus.security.Security;
 import java.util.Collections;
 import java.util.Set;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,13 +40,18 @@ public class SecurityAuditorAwareTest {
     private ObjectMapper objectMapper;
     @Autowired
     private JwtGenerator generator;
+
+    @MockBean
+    private IssuerContext issuerContext;
     
     private String username = "test-username";
 
     @Before
     public void setUp() {
+        Context.init();
         repository.deleteAll();
         repository.resetAutoIncrement();
+        when(issuerContext.get()).thenReturn("localhost");
     }
 
     @Test
