@@ -1,4 +1,4 @@
-package software.plusminus.security;
+package software.plusminus.security.fixtures;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import software.plusminus.authentication.annotation.Public;
 import software.plusminus.context.Context;
+import software.plusminus.security.Security;
 
 import java.util.Collections;
 import java.util.List;

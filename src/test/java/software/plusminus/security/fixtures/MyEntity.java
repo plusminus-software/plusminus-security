@@ -1,4 +1,4 @@
-package software.plusminus.security;
+package software.plusminus.security.fixtures;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;

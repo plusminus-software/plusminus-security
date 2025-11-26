@@ -1,4 +1,4 @@
-package software.plusminus.security;
+package software.plusminus.security.fixtures;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -1,9 +1,8 @@
-package software.plusminus.security.configs;
+package software.plusminus.security;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import software.plusminus.context.Context;
-import software.plusminus.security.Security;
 
 import java.util.Optional;
 

@@ -1,4 +1,4 @@
-package software.plusminus.security.configs;
+package software.plusminus.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
@@ -13,13 +13,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import software.plusminus.authentication.service.token.HttpTokenContext;
 import software.plusminus.context.Context;
 import software.plusminus.jwt.service.IssuerContext;
 import software.plusminus.jwt.service.JwtGenerator;
-import software.plusminus.security.MyEntity;
-import software.plusminus.security.MyEntityRepository;
-import software.plusminus.security.Security;
+import software.plusminus.security.fixtures.MyEntity;
+import software.plusminus.security.fixtures.MyEntityRepository;
 
 import java.util.Collections;
 import java.util.List;
