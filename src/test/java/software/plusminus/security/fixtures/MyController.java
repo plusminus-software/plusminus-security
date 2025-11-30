@@ -52,8 +52,8 @@ public class MyController {
                 .roles(securityContext.optional()
                         .map(Security::getRoles)
                         .orElse(Collections.emptySet()))
-                .others(securityContext.optional()
-                        .map(Security::getOthers)
+                .parameters(securityContext.optional()
+                        .map(Security::getParameters)
                         .orElse(Collections.emptyMap()))
                 .build();
     }

@@ -76,7 +76,7 @@
             <artifactId>plusminus-jwt</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <!-- Test -->
+        <!-- TEST -->
         <dependency>
             <groupId>software.plusminus</groupId>
             <artifactId>plusminus-test</artifactId>
