@@ -1,2 +1,2 @@
 # plusminus-security
-Security implementation for a java web application.
+Security implementation for a java/spring web application.
