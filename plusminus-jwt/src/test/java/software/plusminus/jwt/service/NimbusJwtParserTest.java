@@ -12,10 +12,12 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jwt.JWTClaimsSet;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.util.StringUtils;
 import software.plusminus.security.Security;
-import software.plusminus.test.IntegrationTest;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -28,8 +30,10 @@ import java.util.Date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-@SuppressWarnings("classdataabstractioncoupling")
-public class NimbusJwtParserTest extends IntegrationTest {
+@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class NimbusJwtParserTest {
 
     private final KeyPair keysHolder;
     private final RSAKey publicKey;
@@ -39,7 +43,7 @@ public class NimbusJwtParserTest extends IntegrationTest {
     private NimbusJwtParser parser;
     private String accessToken;
 
-    public NimbusJwtParserTest() throws NoSuchAlgorithmException {
+    NimbusJwtParserTest() throws NoSuchAlgorithmException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(1024);
         keysHolder = generator.generateKeyPair();
@@ -72,11 +76,11 @@ public class NimbusJwtParserTest extends IntegrationTest {
         builder.claim("email", "test");
         builder.issueTime(new Date());
 
-        if (StringUtils.isNotEmpty(roles)) {
+        if (!StringUtils.isEmpty(roles)) {
             builder.claim("roles", Collections.singletonList(roles));
         }
 
-        if (StringUtils.isNotEmpty(domain)) {
+        if (!StringUtils.isEmpty(domain)) {
             builder.claim("domain", domain);
         }
 
@@ -86,9 +90,8 @@ public class NimbusJwtParserTest extends IntegrationTest {
         return builder.build();
     }
 
-    @Override
-    public void beforeEach() {
-        super.beforeEach();
+    @BeforeEach
+    void beforeEach() {
         parser = new NimbusJwtParser(
                 new ImmutableJWKSet<>(new JWKSet(publicKey)),
                 issuerContext);
@@ -97,19 +100,19 @@ public class NimbusJwtParserTest extends IntegrationTest {
     }
 
     @Test
-    public void testUnauthorized() {
+    void testUnauthorized() {
         Security security = parser.parseToken(null);
         assertThat(security).isNull();
     }
 
     @Test
-    public void testIncorrectApiKey() {
+    void testIncorrectApiKey() {
         Security security = parser.parseToken("foo");
         assertThat(security).isNull();
     }
 
     @Test
-    public void testValidAccessToken() {
+    void testValidAccessToken() {
         Security security = parser.parseToken(accessToken);
 
         assertThat(security).isNotNull();
@@ -118,19 +121,14 @@ public class NimbusJwtParserTest extends IntegrationTest {
     }
 
     @Test
-    public void testInvalidAccessToken() {
-        testInvalidAccessToken(accessToken.toUpperCase());
-        testInvalidAccessToken(" ." + accessToken);
-        testInvalidAccessToken("Vendor " + accessToken);
-    }
-
-    private void testInvalidAccessToken(String token) {
-        Security security = parser.parseToken(token);
-        assertThat(security).isNull();
+    void testInvalidAccessToken() {
+        checkInvalidAccessToken(accessToken.toUpperCase());
+        checkInvalidAccessToken(" ." + accessToken);
+        checkInvalidAccessToken("Vendor " + accessToken);
     }
 
     @Test
-    public void testAccessTokenWithUnknownKey() {
+    void testAccessTokenWithUnknownKey() {
         JWTClaimsSet claims = claims(
                 "test", "some_domain", expirationTime(60));
         String authorization = jws(
@@ -142,7 +140,7 @@ public class NimbusJwtParserTest extends IntegrationTest {
     }
 
     @Test
-    public void testAccessTokenWithoutRoles() {
+    void testAccessTokenWithoutRoles() {
 
         JWTClaimsSet claims = claims(null,
                 "_some_domain",
@@ -157,7 +155,7 @@ public class NimbusJwtParserTest extends IntegrationTest {
     }
 
     @Test
-    public void testJwtWithExpiredTime() {
+    void testJwtWithExpiredTime() {
         String authorization = jws(
                 claims("point-observation",
                         "some_domain",
@@ -167,6 +165,11 @@ public class NimbusJwtParserTest extends IntegrationTest {
 
         Security security = parser.parseToken(authorization);
 
+        assertThat(security).isNull();
+    }
+
+    private void checkInvalidAccessToken(String token) {
+        Security security = parser.parseToken(token);
         assertThat(security).isNull();
     }
 

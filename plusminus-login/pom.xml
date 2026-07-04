@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>software.plusminus</groupId>
-        <artifactId>plusminus-security-parent</artifactId>
+        <artifactId>plusminus-security-pom</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -24,8 +24,13 @@
         </dependency>
         <!-- Test -->
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>software.plusminus</groupId>
-            <artifactId>plusminus-test</artifactId>
+            <artifactId>plusminus-selenium</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>

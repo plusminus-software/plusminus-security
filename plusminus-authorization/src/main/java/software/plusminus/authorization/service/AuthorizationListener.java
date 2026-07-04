@@ -1,30 +1,26 @@
 package software.plusminus.authorization.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
-import software.plusminus.aspect.Before;
+import org.springframework.web.method.HandlerMethod;
 import software.plusminus.authorization.exception.AuthorizationException;
 import software.plusminus.authorization.model.AuthorizationResult;
-import software.plusminus.context.Context;
+import software.plusminus.scope.events.InvocationStartedEvent;
 
 import java.util.List;
 
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @AllArgsConstructor
 @Component
-public class AuthorizationAspect implements Before {
+public class AuthorizationListener {
 
-    private Context<Object> handlerContext;
     private List<Authorizer> authorizers;
 
-    @Override
-    public void before() {
-        if (handlerContext.get() instanceof ResourceHttpRequestHandler) {
-            return;
-        }
+    @EventListener
+    public void authorize(InvocationStartedEvent<HandlerMethod> event) {
         authorizers.forEach(this::run);
     }
 

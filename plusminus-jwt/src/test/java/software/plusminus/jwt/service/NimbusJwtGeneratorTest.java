@@ -1,22 +1,25 @@
 package software.plusminus.jwt.service;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import software.plusminus.security.Security;
-import software.plusminus.test.IntegrationTest;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NimbusJwtGeneratorTest extends IntegrationTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class NimbusJwtGeneratorTest {
 
     @Autowired
     private NimbusJwtGenerator generator;
 
     @Test
-    public void generate_ReturnsGeneratedToken() {
+    void generate_ReturnsGeneratedToken() {
         //given
         Security security = Security.builder()
                 .username("some_username")
@@ -28,5 +31,4 @@ public class NimbusJwtGeneratorTest extends IntegrationTest {
         //then
         assertThat(token).isNotNull();
     }
-
 }

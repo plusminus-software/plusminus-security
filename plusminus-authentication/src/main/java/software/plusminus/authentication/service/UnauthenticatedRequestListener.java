@@ -2,17 +2,18 @@ package software.plusminus.authentication.service;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
-import software.plusminus.aspect.Before;
 import software.plusminus.authentication.exception.NonPublicApiException;
 import software.plusminus.authentication.exception.NotFoundException;
 import software.plusminus.authentication.properties.SecurityProperties;
 import software.plusminus.authentication.service.endpoint.PublicEndpointChecker;
 import software.plusminus.context.Context;
-import software.plusminus.listener.Stop;
+import software.plusminus.scope.events.InvocationStartedEvent;
 import software.plusminus.security.Security;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @AllArgsConstructor
 @Component
-public class UnauthenticatedAspect implements Before {
+public class UnauthenticatedRequestListener {
 
     private Context<Security> securityContext;
     private Context<Object> handlerContext;
@@ -34,8 +35,8 @@ public class UnauthenticatedAspect implements Before {
     private List<PublicEndpointChecker> publicEndpointCheckers;
     private SecurityProperties properties;
 
-    @Override
-    public void before() {
+    @EventListener
+    public void invocationStarted(InvocationStartedEvent<HandlerMethod> event) {
         if (securityContext.optional().isPresent()) {
             return;
         }
@@ -56,7 +57,7 @@ public class UnauthenticatedAspect implements Before {
         if (properties.getLoginPage().equals(httpServletRequestContext.get().getRequestURI())) {
             return;
         }
-        redirectToLoginPage();
+        redirectToLoginPage(event);
     }
 
     private boolean isHtmlEndpoint() {
@@ -66,10 +67,10 @@ public class UnauthenticatedAspect implements Before {
     }
 
     @SuppressFBWarnings("UNVALIDATED_REDIRECT")
-    private void redirectToLoginPage() {
+    private void redirectToLoginPage(InvocationStartedEvent<HandlerMethod> event) {
         try {
             httpServletResponseContext.get().sendRedirect(properties.getLoginPage());
-            Stop.stop();
+            event.setIntercepted(true);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

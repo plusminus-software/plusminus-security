@@ -1,16 +1,19 @@
 package software.plusminus.jwt.service;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import software.plusminus.security.Security;
-import software.plusminus.test.IntegrationTest;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JwtIntegrationTest extends IntegrationTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class JwtIntegrationTest {
 
     @Autowired
     private JwtGenerator generator;
@@ -18,7 +21,7 @@ public class JwtIntegrationTest extends IntegrationTest {
     private JwtParser parser;
 
     @Test
-    public void generator_GeneratesParseableToken() {
+    void generator_GeneratesParseableToken() {
         //given
         Security security = Security.builder()
                 .username("some_username")

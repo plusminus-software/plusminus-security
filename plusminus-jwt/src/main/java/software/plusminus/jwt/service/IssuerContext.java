@@ -18,7 +18,7 @@ public class IssuerContext implements Context<String> {
     private Optional<Context<HttpServletRequest>> httpServletRequestContext;
 
     @Override
-    public String provide() {
+    public String get() {
         return httpServletRequestContext
                 .map(Context::optional)
                 .flatMap(Function.identity())

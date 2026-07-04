@@ -1,57 +1,67 @@
 package software.plusminus.login.controller;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Cookie;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
 import software.plusminus.authentication.service.token.HttpTokenContext;
 import software.plusminus.security.Security;
 import software.plusminus.security.service.TokenProcessor;
-import software.plusminus.selenium.model.WebTestOptions;
-import software.plusminus.test.BrowserTest;
+import software.plusminus.selenium.Findable;
+import software.plusminus.selenium.Finder;
+import software.plusminus.selenium.Selenium;
+import software.plusminus.selenium.model.SeleniumOptions;
 
 import static org.mockito.Mockito.when;
 import static software.plusminus.check.Checks.check;
 
-public class LogoutControllerSeleniumTest extends BrowserTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+public class LogoutControllerSeleniumTest implements Findable {
+
+    @LocalServerPort
+    private int port;
+    @MockBean
+    private TokenProcessor tokenProcessor;
 
     private String token = "test-token";
     private String email = "test@email.com";
     private Security security = Security.builder().username(email).build();
+    private Selenium selenium = new Selenium();
+    private SeleniumOptions options = new SeleniumOptions()
+            .logsFilter(logEntry -> !logEntry.getMessage().contains("404")
+                    && !logEntry.getMessage().contains("favicon.ico"));
 
-    @MockBean
-    private TokenProcessor tokenProcessor;
-
-    @Override
-    protected WebTestOptions options() {
-        return super.options().logsFilter(logEntry ->
-                !logEntry.getMessage().contains("404") && !logEntry.getMessage().contains("favicon.ico")
-        );
-    }
-
-    @Override
-    public void beforeEach() {
-        super.beforeEach();
+    @BeforeEach
+    void beforeEach() {
         when(tokenProcessor.getSecurity(token)).thenReturn(security);
-        driver().manage().addCookie(new Cookie(HttpTokenContext.COOKIE_NAME, token));
-        driver().navigate().refresh();
+        selenium.openBrowser(options);
+        selenium.loadPage(options, "http://localhost:" + port);
+        selenium.driver().manage().addCookie(new Cookie(HttpTokenContext.COOKIE_NAME, token));
+        selenium.driver().navigate().refresh();
     }
 
     @Override
-    protected String url() {
-        return "http://localhost:" + port();
+    public Finder find() {
+        return new Finder(selenium);
     }
 
     @Test
-    public void logoutClearsCookies() {
+    void logoutClearsCookies() {
         find("#logout").one().click();
         find("#logout").none();
-        check(driver().manage().getCookies()).isEmpty();
+
+        check(selenium.driver().manage().getCookies()).isEmpty();
     }
 
     @Test
-    public void logoutRedirectsToIndexPage() {
+    void logoutRedirectsToIndexPage() {
         find("#logout").one().click();
         find("#logout").none();
-        check(driver().getCurrentUrl()).is(buildUrl("/"));
+
+        check(selenium.driver().getCurrentUrl()).is("http://localhost:" + port + "/");
     }
 }
