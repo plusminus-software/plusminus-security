@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>software.plusminus</groupId>
-            <artifactId>plusminus-http-context</artifactId>
+            <artifactId>plusminus-http</artifactId>
             <version>1.0-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
@@ -43,9 +43,8 @@
         </dependency>
         <!-- Test -->
         <dependency>
-            <groupId>software.plusminus</groupId>
-            <artifactId>plusminus-test</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

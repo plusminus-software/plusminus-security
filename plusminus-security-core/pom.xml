@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>software.plusminus</groupId>
-            <artifactId>plusminus-context</artifactId>
+            <artifactId>plusminus-http</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
