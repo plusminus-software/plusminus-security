@@ -21,6 +21,9 @@ public class AuthorizationListener {
 
     @EventListener
     public void authorize(InvocationStartedEvent<HandlerMethod> event) {
+        if (event.isIntercepted()) {
+            return;
+        }
         authorizers.forEach(this::run);
     }
 

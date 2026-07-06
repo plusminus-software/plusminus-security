@@ -2,19 +2,28 @@ package software.plusminus.user.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
+import software.plusminus.browser.Browser;
+import software.plusminus.browser.BrowserSettings;
+import software.plusminus.browser.Page;
 import software.plusminus.security.Security;
-import software.plusminus.selenium.model.WebTestOptions;
-import software.plusminus.test.BrowserTest;
 import software.plusminus.user.model.User;
 
 import java.util.Collections;
 
-import static software.plusminus.check.Checks.check;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserCredentialServiceTest extends BrowserTest {
-    
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class UserCredentialServiceTest {
+
+    @LocalServerPort
+    private int port;
     @Autowired
     private UserService userService;
     @Autowired
@@ -23,34 +32,35 @@ public class UserCredentialServiceTest extends BrowserTest {
     private String tenant = "tenant1@email.com";
     private String email = "tenant1+user1@email.com";
     private String password = "test-password";
+    private Browser browser;
 
-    @Override
-    protected WebTestOptions options() {
-        return super.options()
-                .logsFilter(e -> !e.getMessage().contains("favicon"));
-    }
-
-    @Override
-    protected String url() {
-        return "/login";
+    @BeforeEach
+    void beforeEach() {
+        BrowserSettings browserSettings = new BrowserSettings()
+                .port(port)
+                .logsFilter(logEntry -> !logEntry.contains("favicon"));
+        browser = Browser.create(browserSettings);
+        browser.open();
+        browser.cookies().clear();
     }
 
     @Test
-    public void login() throws JsonProcessingException {
+    void login() throws JsonProcessingException {
         User user = createUser();
-        
-        find("#email").one().sendKeys(email);
-        find("#password").one().sendKeys(password);
-        find("#submit").one().click();
+        Page page = browser.go("/login");
 
-        String json = find("body").one().getText();
+        page.find("#email").one().sendKeys(email);
+        page.find("#password").one().sendKeys(password);
+        page.find("#submit").one().click();
+
+        String json = browser.currentPage().find("body").one().text();
         Security security = objectMapper.readValue(json, Security.class);
-        check(security.getUsername()).is(user.getUsername());
-        check(security.getRoles()).is("admin");
-        check(security.getParameters().get("tenant")).is(user.getTenant());
-        check(security.getParameters().get("email")).is(user.getEmail());
+        assertThat(security.getUsername()).isEqualTo(user.getUsername());
+        assertThat(security.getRoles()).containsExactly("admin");
+        assertThat(security.getParameters().get("tenant")).isEqualTo(user.getTenant());
+        assertThat(security.getParameters().get("email")).isEqualTo(user.getEmail());
     }
-    
+
     private User createUser() {
         User user = new User();
         user.setUsername(email);

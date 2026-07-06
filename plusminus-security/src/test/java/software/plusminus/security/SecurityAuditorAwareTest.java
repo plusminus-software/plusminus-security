@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import software.plusminus.context.Context;
 import software.plusminus.jwt.service.IssuerContext;
 import software.plusminus.jwt.service.JwtGenerator;
 import software.plusminus.security.fixtures.MyEntity;
@@ -47,7 +46,6 @@ public class SecurityAuditorAwareTest {
 
     @Before
     public void setUp() {
-        Context.init();
         repository.deleteAll();
         repository.resetAutoIncrement();
         when(issuerContext.get()).thenReturn("localhost");
@@ -79,5 +77,4 @@ public class SecurityAuditorAwareTest {
                 .build();
         return generator.generateAccessToken(security);
     }
-    
 }
