@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import javax.persistence.EntityManager;
 
 @UtilityClass
-public class TodoMoveTenantUtils {
+public class TenantUtils {
     
     public void runWithTenant(EntityManager entityManager, String tenant, Runnable runnable) {
         callWithTenant(entityManager, tenant, () -> {

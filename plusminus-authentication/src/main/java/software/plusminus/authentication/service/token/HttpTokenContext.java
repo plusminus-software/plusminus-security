@@ -2,6 +2,7 @@ package software.plusminus.authentication.service.token;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import software.plusminus.authentication.properties.SecurityProperties;
 import software.plusminus.authentication.util.CookieUtil;
 import software.plusminus.context.Context;
 import software.plusminus.security.service.TokenContext;
@@ -18,10 +19,11 @@ import javax.servlet.http.HttpServletResponse;
 public class HttpTokenContext implements TokenContext {
 
     public static final String HEADER_NAME = "Authorization";
-    public static final String COOKIE_NAME = "JWT-TOKEN"; //TODO rename to neutral name
+    public static final String COOKIE_NAME = "AUTH-TOKEN";
 
     private Context<HttpServletRequest> requestContext;
     private Context<HttpServletResponse> responseContext;
+    private SecurityProperties properties;
 
     @Nullable
     @Override
@@ -50,10 +52,14 @@ public class HttpTokenContext implements TokenContext {
         if (!response.isPresent()) {
             return false;
         }
+        String domain = requestContext.optional()
+                .map(HttpServletRequest::getServerName)
+                .orElse("localhost");
         CookieUtil.create(response.get(),
                 COOKIE_NAME,
                 token,
-                "localhost");
+                domain,
+                properties.getCookieMaxAge());
         return true;
     }
 

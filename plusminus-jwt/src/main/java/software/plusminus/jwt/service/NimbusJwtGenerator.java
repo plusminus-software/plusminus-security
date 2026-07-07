@@ -9,6 +9,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import software.plusminus.jwt.config.JwtProperties;
 import software.plusminus.security.Security;
 
 import java.security.PrivateKey;
@@ -19,10 +20,9 @@ import java.util.Date;
 @Component
 public class NimbusJwtGenerator implements JwtGenerator {
 
-    private static final int JWT_EXPIRATION_YEARS = 100;
-
     private PrivateKey privateKey;
     private IssuerContext issuerContext;
+    private JwtProperties jwtProperties;
 
     @Override
     public String generateAccessToken(Security security) {
@@ -32,7 +32,7 @@ public class NimbusJwtGenerator implements JwtGenerator {
                 .subject(security.getUsername())
                 .issuer(issuerContext.get())
                 .issueTime(Date.from(issuedAt.toInstant()))
-                .expirationTime(Date.from(issuedAt.plusYears(JWT_EXPIRATION_YEARS)
+                .expirationTime(Date.from(issuedAt.plus(jwtProperties.getExpiration())
                                 .toInstant()))
                 .claim("roles", security.getRoles());
         security.getParameters().forEach(claimsSetBuilder::claim);

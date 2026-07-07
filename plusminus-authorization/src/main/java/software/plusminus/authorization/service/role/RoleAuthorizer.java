@@ -20,14 +20,18 @@ public class RoleAuthorizer implements AnnotationAuthorizer<Role> {
 
     @Override
     public AuthorizationResult authorize(Role role) {
-        Set<String> roles = securityContext.get().getRoles().stream()
+        Security security = securityContext.get();
+        if (security == null) {
+            return AuthorizationResult.error("No authenticated user");
+        }
+        Set<String> roles = security.getRoles().stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        
+
         boolean containsAnyRole = Stream.of(role.value())
                 .anyMatch(r -> roles.contains(r.toLowerCase()));
         if (!containsAnyRole) {
-            return AuthorizationResult.error("User '" + securityContext.get().getUsername()
+            return AuthorizationResult.error("User '" + security.getUsername()
                     + "' does not have at least one of the required roles: " + Arrays.toString(role.value()));
         }
         return AuthorizationResult.ok();

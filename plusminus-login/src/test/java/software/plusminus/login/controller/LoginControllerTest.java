@@ -18,6 +18,7 @@ import software.plusminus.security.Security;
 import software.plusminus.security.service.CredentialService;
 import software.plusminus.security.service.TokenProcessor;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static software.plusminus.check.Checks.check;
@@ -59,11 +60,11 @@ class LoginControllerTest {
                 .getResponse();
 
         check(response.getStatus()).is(HttpStatus.FOUND.value());
-        check(response.getHeaderNames()).contains(HttpHeaders.SET_COOKIE);
         check(response.getContentAsString()).is("");
-        check(response.getCookies()).hasSize(1);
-        check(response.getCookies()[0].getName()).is(HttpTokenContext.COOKIE_NAME);
-        check(response.getCookies()[0].getValue()).is(token);
+        assertThat(response.getHeader(HttpHeaders.SET_COOKIE))
+                .contains(HttpTokenContext.COOKIE_NAME + "=" + token)
+                .contains("HttpOnly")
+                .contains("SameSite=Strict");
     }
 
     @Test
@@ -78,9 +79,10 @@ class LoginControllerTest {
 
         check(response.getStatus()).is(HttpStatus.OK.value());
         check(response.getContentAsString()).is(token);
-        check(response.getCookies()).hasSize(1);
-        check(response.getCookies()[0].getName()).is(HttpTokenContext.COOKIE_NAME);
-        check(response.getCookies()[0].getValue()).is(token);
+        assertThat(response.getHeader(HttpHeaders.SET_COOKIE))
+                .contains(HttpTokenContext.COOKIE_NAME + "=" + token)
+                .contains("HttpOnly")
+                .contains("SameSite=Strict");
     }
 
     @Test
@@ -94,7 +96,7 @@ class LoginControllerTest {
                 .getResponse();
 
         check(response.getStatus()).is(HttpStatus.OK.value());
-        check(response.getCookies()).isEmpty();
+        assertThat(response.getHeader(HttpHeaders.SET_COOKIE)).isNull();
     }
 
     @Test
@@ -109,6 +111,6 @@ class LoginControllerTest {
 
         check(response.getStatus()).is(HttpStatus.UNAUTHORIZED.value());
         check(response.getContentAsString()).is("");
-        check(response.getCookies()).isEmpty();
+        assertThat(response.getHeader(HttpHeaders.SET_COOKIE)).isNull();
     }
 }

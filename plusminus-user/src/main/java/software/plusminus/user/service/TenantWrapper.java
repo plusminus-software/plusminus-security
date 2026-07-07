@@ -21,7 +21,7 @@ public class TenantWrapper {
     public <T> T callWithTenantIfNeeded(String username, Callable<T> callable) {
         if (isTenantFromEmail()) {
             String tenant = getTenantFromEmail(username);
-            return TodoMoveTenantUtils.callWithTenant(entityManager, tenant, callable);
+            return TenantUtils.callWithTenant(entityManager, tenant, callable);
         } else {
             try {
                 return callable.call();
@@ -48,6 +48,6 @@ public class TenantWrapper {
         if (start == -1 || end == -1 || start > end) {
             throw new TenantParsingException("Incorrect email to get tenant: '" + email + "'");
         }
-        return email.substring(0, start) + email.substring(end, email.length());
+        return email.substring(0, start) + email.substring(end);
     }
 }

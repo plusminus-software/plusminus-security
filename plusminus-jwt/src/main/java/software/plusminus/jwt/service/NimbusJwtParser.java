@@ -86,8 +86,8 @@ public class NimbusJwtParser implements JwtParser {
     }
 
     private boolean checkHeaderAndKeyId(JWSHeader header) {
-        if (header == null /*|| header.getKeyID() == null*/) {
-            log.warn("missing key id property in access token.");
+        if (header == null) {
+            log.warn("Missing header in access token.");
             return false;
         }
 

@@ -20,11 +20,15 @@ public class RolesAllowedAuthorizer implements AnnotationAuthorizer<RolesAllowed
 
     @Override
     public AuthorizationResult authorize(RolesAllowed annotation) {
+        Security security = securityContext.get();
+        if (security == null) {
+            return AuthorizationResult.error("No authenticated user");
+        }
         List<String> declaredRoles = Arrays.asList(annotation.value());
-        Set<String> allowedRoles = securityContext.get().getRoles();
+        Set<String> allowedRoles = security.getRoles();
         boolean rolePresent = declaredRoles.stream().anyMatch(allowedRoles::contains);
         if (!rolePresent) {
-            return AuthorizationResult.error("User '" + securityContext.get().getUsername()
+            return AuthorizationResult.error("User '" + security.getUsername()
                     + "' does not have at least one of the required roles: " + declaredRoles);
         }
         return AuthorizationResult.ok();
