@@ -3,11 +3,8 @@ package software.plusminus.authentication.util;
 import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.web.util.WebUtils;
 
 import java.time.Duration;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @UtilityClass

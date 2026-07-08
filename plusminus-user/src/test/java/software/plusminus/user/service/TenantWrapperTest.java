@@ -2,9 +2,9 @@ package software.plusminus.user.service;
 
 import org.hibernate.Filter;
 import org.hibernate.Session;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import software.plusminus.context.Context;
@@ -31,8 +31,13 @@ public class TenantWrapperTest {
     private Session session;
     @Mock
     private Filter filter;
-    @InjectMocks
+
     private TenantWrapper wrapper;
+
+    @Before
+    public void setUp() {
+        wrapper = new TenantWrapper(context, entityManager);
+    }
 
     private void stubTenantFromEmail(String value) {
         when(context.optional()).thenReturn(Optional.of(request));

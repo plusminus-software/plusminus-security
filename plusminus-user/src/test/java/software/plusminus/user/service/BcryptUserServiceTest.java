@@ -1,5 +1,6 @@
 package software.plusminus.user.service;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mindrot.jbcrypt.BCrypt;
@@ -62,8 +63,10 @@ public class BcryptUserServiceTest {
     }
 
     @Test
+    @SuppressFBWarnings(value = "HARD_CODE_PASSWORD",
+            justification = "Test literal password verifies BCrypt hashing, not a real credential.")
     public void registerHashesPassword() {
-        String raw = "sec" + "ret";
+        String raw = "secret";
         User user = new User();
         user.setPassword(raw);
 
