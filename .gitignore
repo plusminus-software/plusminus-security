@@ -2,6 +2,7 @@ target/
 server/src/main/resources/static
 !.mvn/wrapper/maven-wrapper.jar
 *.pem
+!**/src/test/resources/*.pem
 
 ### STS ###
 .apt_generated
