@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -23,37 +24,24 @@ public class SecurityService {
 
     @Nullable
     public Security getSecurity() {
-        String token = tokenContexts.stream()
-                .map(TokenContext::getToken)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        String token = findFirst(tokenContexts, TokenContext::getToken);
         if (token == null) {
             return null;
         }
-        return tokenProcessors.stream()
-                .map(tokenProcessor -> tokenProcessor.getSecurity(token))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        return findFirst(tokenProcessors,
+                tokenProcessor -> tokenProcessor.getSecurity(token));
     }
 
     @Nullable
     public String createToken(String user, String password) {
-        Security security = credentialServices.stream()
-                .map(credentialService -> credentialService.provideSecurity(user, password))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        Security security = findFirst(credentialServices,
+                credentialService -> credentialService.provideSecurity(user, password));
         if (security == null) {
             return null;
         }
         Security processedSecurity = processSecurity(security);
-        String token = tokenProcessors.stream()
-                .map(tokenProcessor -> tokenProcessor.getToken(processedSecurity))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        String token = findFirst(tokenProcessors,
+                tokenProcessor -> tokenProcessor.getToken(processedSecurity));
         if (token == null) {
             throw new IllegalStateException("Cannot get token for user " + user);
         }
@@ -70,6 +58,14 @@ public class SecurityService {
 
     public void clearToken() {
         tokenContexts.forEach(TokenContext::clearToken);
+    }
+
+    private <T, R> R findFirst(List<T> list, Function<T, R> function) {
+        return list.stream()
+                .map(function)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     private Security processSecurity(Security originalSecurity) {
