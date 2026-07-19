@@ -5,6 +5,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.plusminus.user.model.User;
+import software.plusminus.user.model.UserStatus;
 import software.plusminus.user.repository.UserRepository;
 
 import javax.annotation.Nullable;
@@ -25,7 +26,8 @@ public class BcryptUserService implements UserService {
     @Override
     public User findUser(String email, String password) {
         User user = userRepository.findByEmail(email);
-        if (user == null || !BCrypt.checkpw(password, user.getPassword())) {
+        if (user == null || user.getStatus() == UserStatus.DEACTIVATED
+                || !BCrypt.checkpw(password, user.getPassword())) {
             return null;
         }
         return user;

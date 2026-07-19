@@ -10,6 +10,7 @@ import software.plusminus.security.Security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 
 @AllArgsConstructor
@@ -25,8 +26,11 @@ public class RolesAllowedAuthorizer implements AnnotationAuthorizer<RolesAllowed
             return AuthorizationResult.error("No authenticated user");
         }
         List<String> declaredRoles = Arrays.asList(annotation.value());
-        Set<String> allowedRoles = security.getRoles();
-        boolean rolePresent = declaredRoles.stream().anyMatch(allowedRoles::contains);
+        Set<String> allowedRoles = security.getRoles().stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+        boolean rolePresent = declaredRoles.stream()
+                .anyMatch(r -> allowedRoles.contains(r.toLowerCase()));
         if (!rolePresent) {
             return AuthorizationResult.error("User '" + security.getUsername()
                     + "' does not have at least one of the required roles: " + declaredRoles);

@@ -1,6 +1,16 @@
 name: Release
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch'
+      && format('Release {0} @{1}', github.ref_name, github.sha)
+      || '' }}
 
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
   workflow_dispatch:
     inputs:
       module:
@@ -10,7 +20,6 @@ on:
         options:
           - ""
           - "plusminus-security"
-          - "plusminus-security-parent"
           - "plusminus-security-core"
           - "plusminus-authentication"
           - "plusminus-authorization"
@@ -20,8 +29,8 @@ on:
 
 jobs:
   release:
-    uses: plusminus-software/plusminus-opensource/.github/workflows/maven-central-release.yml@main
+    uses: plusminus-software/plusminus-workflows/.github/workflows/maven-central-release.yml@main
     with:
       java-version: '8'
-      module: ${{ github.event.inputs.module || '' }}
+      module: ${{ github.event.inputs.module }}
     secrets: inherit

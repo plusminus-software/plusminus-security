@@ -30,7 +30,7 @@ public class HostAuthorizer implements Authorizer {
         String currentHost = AuthorizationUtils.getHost(httpServletRequestContext.get());
         if (!allowedHost.get().equals(currentHost)) {
             return AuthorizationResult.error("The current host '" + currentHost
-                    + "' does not equal to host '" + allowedHost + "' from token");
+                    + "' does not equal to host '" + allowedHost.get() + "' from token");
         }
         return AuthorizationResult.ok();
     }

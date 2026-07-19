@@ -18,6 +18,7 @@ import org.springframework.util.ObjectUtils;
 import software.plusminus.security.Security;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -29,6 +30,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class NimbusJwtParser implements JwtParser {
+
+    private static final Set<String> RESERVED_CLAIMS = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList("sub", "iss", "exp", "iat", "aud", "nbf", "jti", "roles")));
 
     private JWKSource<? extends com.nimbusds.jose.proc.SecurityContext> jwkSource;
     private IssuerContext issuerContext;
@@ -141,6 +145,7 @@ public class NimbusJwtParser implements JwtParser {
     
     private Map<String, String> getParameters(JWTClaimsSet claims) {
         return claims.getClaims().entrySet().stream()
+                .filter(e -> !RESERVED_CLAIMS.contains(e.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
     
