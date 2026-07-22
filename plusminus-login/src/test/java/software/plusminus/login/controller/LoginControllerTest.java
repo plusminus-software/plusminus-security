@@ -108,9 +108,9 @@ class LoginControllerTest {
     }
 
     private void checkAuthCookie(String setCookieHeader) {
-        check(setCookieHeader).isNotNull();
-        check(setCookieHeader.contains(HttpTokenContext.COOKIE_NAME + "=" + token)).isTrue();
-        check(setCookieHeader.contains("HttpOnly")).isTrue();
-        check(setCookieHeader.contains("SameSite=Strict")).isTrue();
+        check(setCookieHeader)
+                .contains(HttpTokenContext.COOKIE_NAME + "=" + token)
+                .contains("HttpOnly")
+                .contains("SameSite=Strict");
     }
 }
