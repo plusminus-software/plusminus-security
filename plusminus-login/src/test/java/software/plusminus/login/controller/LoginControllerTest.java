@@ -18,7 +18,6 @@ import software.plusminus.security.Security;
 import software.plusminus.security.service.CredentialService;
 import software.plusminus.security.service.TokenProcessor;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static software.plusminus.check.Checks.check;
@@ -61,10 +60,7 @@ class LoginControllerTest {
 
         check(response.getStatus()).is(HttpStatus.FOUND.value());
         check(response.getContentAsString()).is("");
-        assertThat(response.getHeader(HttpHeaders.SET_COOKIE))
-                .contains(HttpTokenContext.COOKIE_NAME + "=" + token)
-                .contains("HttpOnly")
-                .contains("SameSite=Strict");
+        checkAuthCookie(response.getHeader(HttpHeaders.SET_COOKIE));
     }
 
     @Test
@@ -79,10 +75,7 @@ class LoginControllerTest {
 
         check(response.getStatus()).is(HttpStatus.OK.value());
         check(response.getContentAsString()).is(token);
-        assertThat(response.getHeader(HttpHeaders.SET_COOKIE))
-                .contains(HttpTokenContext.COOKIE_NAME + "=" + token)
-                .contains("HttpOnly")
-                .contains("SameSite=Strict");
+        checkAuthCookie(response.getHeader(HttpHeaders.SET_COOKIE));
     }
 
     @Test
@@ -96,7 +89,7 @@ class LoginControllerTest {
                 .getResponse();
 
         check(response.getStatus()).is(HttpStatus.OK.value());
-        assertThat(response.getHeader(HttpHeaders.SET_COOKIE)).isNull();
+        check(response.getHeader(HttpHeaders.SET_COOKIE)).isNull();
     }
 
     @Test
@@ -111,6 +104,13 @@ class LoginControllerTest {
 
         check(response.getStatus()).is(HttpStatus.UNAUTHORIZED.value());
         check(response.getContentAsString()).is("");
-        assertThat(response.getHeader(HttpHeaders.SET_COOKIE)).isNull();
+        check(response.getHeader(HttpHeaders.SET_COOKIE)).isNull();
+    }
+
+    private void checkAuthCookie(String setCookieHeader) {
+        check(setCookieHeader).isNotNull();
+        check(setCookieHeader.contains(HttpTokenContext.COOKIE_NAME + "=" + token)).isTrue();
+        check(setCookieHeader.contains("HttpOnly")).isTrue();
+        check(setCookieHeader.contains("SameSite=Strict")).isTrue();
     }
 }
