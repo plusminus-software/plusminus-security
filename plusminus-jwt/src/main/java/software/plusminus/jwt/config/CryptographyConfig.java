@@ -1,11 +1,12 @@
 package software.plusminus.jwt.config;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -14,8 +15,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-
-import static com.fasterxml.jackson.core.JsonEncoding.UTF8;
 
 @Configuration
 public class CryptographyConfig {
@@ -50,7 +49,7 @@ public class CryptographyConfig {
     }
 
     private String getKey(InputStream is) throws IOException {
-        return IOUtils.toString(is, UTF8.getJavaName())
+        return StreamUtils.copyToString(is, StandardCharsets.UTF_8)
                 .replace("\n", "")
                 .replace("\r", "")
                 .replace("-----BEGIN PUBLIC KEY-----", "")
