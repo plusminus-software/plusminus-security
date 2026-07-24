@@ -14,7 +14,6 @@ import software.plusminus.login.properties.LoginProperties;
 import software.plusminus.security.service.SecurityService;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Pattern;
 
 @Public
 @Validated
@@ -28,22 +27,33 @@ public class LoginController {
     private LoginProperties loginProperties;
 
     @SuppressFBWarnings(value = "SPRING_UNVALIDATED_REDIRECT",
-            justification = "The redirect is validated: @Validated on the class enforces the "
-                    + "@Pattern(RELATIVE_URI_REGEX) constraint, rejecting absolute/external URLs.")
+            justification = "The redirect is validated by safeRedirect(): only targets matching "
+                    + "RELATIVE_URI_REGEX (same-site paths) are used, any other value falls back to '/'.")
     @PostMapping(path = "/login", produces = "text/html")
     public String loginPage(@Email String email,
                             String password,
-                            @Pattern(regexp = RELATIVE_URI_REGEX) @RequestParam(required = false) String redirect,
+                            @RequestParam(required = false) String redirect,
                             Model model) {
         String token = securityService.createToken(email, password);
         if (token == null) {
             model.addAttribute("error", "Invalid username or password!");
             return loginProperties.getTemplate();
         }
+        return "redirect:" + safeRedirect(redirect);
+    }
+
+    private String safeRedirect(String redirect) {
         if (redirect == null) {
-            return "redirect:/";
+            return "/";
         }
-        return "redirect:" + redirect;
+        if (redirect.matches(RELATIVE_URI_REGEX)) {
+            return redirect;
+        }
+        String normalized = '/' + redirect;
+        if (normalized.matches(RELATIVE_URI_REGEX)) {
+            return normalized;
+        }
+        return "/";
     }
 
     @PostMapping(path = "/login", produces = "application/json")
