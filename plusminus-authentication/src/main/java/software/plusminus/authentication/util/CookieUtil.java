@@ -10,14 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 @UtilityClass
 public class CookieUtil {
 
-    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     public void create(HttpServletResponse httpServletResponse,
                        String name,
                        String value,
-                       String domain,
+                       boolean secure,
                        Duration maxAge) {
 
-        boolean secure = !"localhost".equals(domain) && !"127.0.0.1".equals(domain);
         long maxAgeSeconds = Math.min(maxAge.getSeconds(), Integer.MAX_VALUE);
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)

@@ -52,15 +52,28 @@ public class HttpTokenContext implements TokenContext {
         if (!response.isPresent()) {
             return false;
         }
-        String domain = requestContext.optional()
-                .map(HttpServletRequest::getServerName)
-                .orElse("localhost");
+        boolean secure = requestContext.optional()
+                .map(HttpTokenContext::isSecure)
+                .orElse(true);
         CookieUtil.create(response.get(),
                 COOKIE_NAME,
                 token,
-                domain,
+                secure,
                 properties.getCookieMaxAge());
         return true;
+    }
+
+    private static boolean isSecure(HttpServletRequest request) {
+        if (request.isSecure()) {
+            return true;
+        }
+        String forwardedProto = request.getHeader("X-Forwarded-Proto");
+        if (forwardedProto == null) {
+            return false;
+        }
+        int comma = forwardedProto.indexOf(',');
+        String proto = comma == -1 ? forwardedProto : forwardedProto.substring(0, comma);
+        return "https".equalsIgnoreCase(proto.trim());
     }
 
     @Override

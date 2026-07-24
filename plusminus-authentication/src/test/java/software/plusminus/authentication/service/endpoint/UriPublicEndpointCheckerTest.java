@@ -49,4 +49,20 @@ public class UriPublicEndpointCheckerTest {
         when(httpServletRequestContext.optional()).thenReturn(Optional.of(request));
         assertThat(checker.isPublicEndpoint()).isFalse();
     }
+
+    @Test
+    public void partialMatchIsNotPublic() {
+        properties.setOpenUris(Arrays.asList("/public"));
+        when(request.getRequestURI()).thenReturn("/public/secret");
+        when(httpServletRequestContext.optional()).thenReturn(Optional.of(request));
+        assertThat(checker.isPublicEndpoint()).isFalse();
+    }
+
+    @Test
+    public void misspecifiedPatternFailsClosed() {
+        properties.setOpenUris(Arrays.asList("["));
+        when(request.getRequestURI()).thenReturn("/private/data");
+        when(httpServletRequestContext.optional()).thenReturn(Optional.of(request));
+        assertThat(checker.isPublicEndpoint()).isFalse();
+    }
 }

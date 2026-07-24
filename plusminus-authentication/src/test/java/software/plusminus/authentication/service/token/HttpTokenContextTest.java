@@ -96,11 +96,37 @@ public class HttpTokenContextTest {
     public void setTokenWrites() {
         when(responseContext.optional()).thenReturn(Optional.of(response));
         when(requestContext.optional()).thenReturn(Optional.of(request));
-        when(request.getServerName()).thenReturn("example.com");
+        when(request.isSecure()).thenReturn(true);
 
         assertThat(tokenContext.setToken("token")).isTrue();
         verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), headerCaptor.capture());
-        assertThat(headerCaptor.getValue()).contains(HttpTokenContext.COOKIE_NAME + "=token");
+        assertThat(headerCaptor.getValue())
+                .contains(HttpTokenContext.COOKIE_NAME + "=token")
+                .contains("Secure");
+    }
+
+    @Test
+    public void setTokenWritesNonSecureCookieForPlainHttp() {
+        when(responseContext.optional()).thenReturn(Optional.of(response));
+        when(requestContext.optional()).thenReturn(Optional.of(request));
+        when(request.isSecure()).thenReturn(false);
+        when(request.getHeader("X-Forwarded-Proto")).thenReturn(null);
+
+        assertThat(tokenContext.setToken("token")).isTrue();
+        verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), headerCaptor.capture());
+        assertThat(headerCaptor.getValue()).doesNotContain("Secure");
+    }
+
+    @Test
+    public void setTokenWritesSecureCookieBehindHttpsProxy() {
+        when(responseContext.optional()).thenReturn(Optional.of(response));
+        when(requestContext.optional()).thenReturn(Optional.of(request));
+        when(request.isSecure()).thenReturn(false);
+        when(request.getHeader("X-Forwarded-Proto")).thenReturn("https");
+
+        assertThat(tokenContext.setToken("token")).isTrue();
+        verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), headerCaptor.capture());
+        assertThat(headerCaptor.getValue()).contains("Secure");
     }
 
     @Test

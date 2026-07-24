@@ -2,7 +2,9 @@ package software.plusminus.jwt.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import software.plusminus.context.Context;
+import software.plusminus.jwt.config.JwtProperties;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,9 +18,13 @@ import javax.servlet.http.HttpServletRequest;
 public class IssuerContext implements Context<String> {
 
     private Optional<Context<HttpServletRequest>> httpServletRequestContext;
+    private JwtProperties jwtProperties;
 
     @Override
     public String get() {
+        if (StringUtils.hasText(jwtProperties.getIssuer())) {
+            return jwtProperties.getIssuer();
+        }
         return httpServletRequestContext
                 .map(Context::optional)
                 .flatMap(Function.identity())

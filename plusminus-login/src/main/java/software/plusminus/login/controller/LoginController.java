@@ -22,7 +22,7 @@ import javax.validation.constraints.Pattern;
 @Controller
 public class LoginController {
 
-    public static final String RELATIVE_URI_REGEX = "^(?!www\\.|(?:http|ftp)s?://|[A-Za-z]:\\\\|//)[^\\\\]*$";
+    public static final String RELATIVE_URI_REGEX = "^/(?![/\\\\])[^\\\\\\s]*$";
 
     private SecurityService securityService;
     private LoginProperties loginProperties;

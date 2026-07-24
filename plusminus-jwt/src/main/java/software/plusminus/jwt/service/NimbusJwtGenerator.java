@@ -5,6 +5,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class NimbusJwtGenerator implements JwtGenerator {
     private PrivateKey privateKey;
     private IssuerContext issuerContext;
     private JwtProperties jwtProperties;
+    private RSAKey rsaJwk;
 
     @Override
     public String generateAccessToken(Security security) {
@@ -36,7 +38,10 @@ public class NimbusJwtGenerator implements JwtGenerator {
                                 .toInstant()))
                 .claim("roles", security.getRoles());
         security.getParameters().forEach(claimsSetBuilder::claim);
-        SignedJWT signedJwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSetBuilder.build());
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                .keyID(rsaJwk.getKeyID())
+                .build();
+        SignedJWT signedJwt = new SignedJWT(header, claimsSetBuilder.build());
         try {
             signedJwt.sign(signer);
         } catch (JOSEException e) {

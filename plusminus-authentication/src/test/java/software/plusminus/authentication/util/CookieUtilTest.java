@@ -28,9 +28,9 @@ public class CookieUtilTest {
     }
 
     @Test
-    public void testCreate() {
+    public void testCreateSecure() {
         CookieUtil.create(mockHttpServletResponse, "CookieName", "CookieValue",
-                "example.com", Duration.ofDays(30));
+                true, Duration.ofDays(30));
 
         verify(mockHttpServletResponse).addHeader(eq(HttpHeaders.SET_COOKIE), captorHeader.capture());
         String actual = captorHeader.getValue();
@@ -44,9 +44,9 @@ public class CookieUtilTest {
     }
 
     @Test
-    public void testCreateOnLocalhostIsNotSecure() {
+    public void testCreateNotSecure() {
         CookieUtil.create(mockHttpServletResponse, "CookieName", "CookieValue",
-                "localhost", Duration.ofDays(30));
+                false, Duration.ofDays(30));
 
         verify(mockHttpServletResponse).addHeader(eq(HttpHeaders.SET_COOKIE), captorHeader.capture());
         assertThat(captorHeader.getValue()).doesNotContain("Secure");

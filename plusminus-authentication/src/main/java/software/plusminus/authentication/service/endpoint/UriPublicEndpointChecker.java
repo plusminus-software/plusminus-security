@@ -6,6 +6,8 @@ import software.plusminus.authentication.properties.SecurityProperties;
 import software.plusminus.context.Context;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.servlet.http.HttpServletRequest;
 
 @AllArgsConstructor
@@ -22,7 +24,16 @@ public class UriPublicEndpointChecker implements PublicEndpointChecker {
         if (!requestUri.isPresent()) {
             return false;
         }
+        String uri = requestUri.get();
         return properties.getOpenUris().stream()
-                .anyMatch(requestUri.get()::matches);
+                .anyMatch(pattern -> fullMatch(pattern, uri));
+    }
+
+    private boolean fullMatch(String pattern, String uri) {
+        try {
+            return Pattern.compile(pattern).matcher(uri).matches();
+        } catch (PatternSyntaxException e) {
+            return false;
+        }
     }
 }

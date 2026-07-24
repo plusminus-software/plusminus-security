@@ -24,6 +24,9 @@ public class TenantUtils {
             Filter filter = session.enableFilter("tenantFilter");
             filter.setParameter("tenant", tenant);
             return callable.call();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {

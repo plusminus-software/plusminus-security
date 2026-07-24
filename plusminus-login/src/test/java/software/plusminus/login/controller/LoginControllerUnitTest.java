@@ -56,4 +56,23 @@ public class LoginControllerUnitTest {
         String view = controller.loginPage("email", "password", "/next", new ExtendedModelMap());
         assertThat(view).isEqualTo("redirect:/next");
     }
+
+    @Test
+    public void redirectRegexAcceptsSameSitePaths() {
+        assertThat("/next".matches(LoginController.RELATIVE_URI_REGEX)).isTrue();
+        assertThat("/path/to/page?a=1&b=2".matches(LoginController.RELATIVE_URI_REGEX)).isTrue();
+        assertThat("/".matches(LoginController.RELATIVE_URI_REGEX)).isTrue();
+    }
+
+    @Test
+    public void redirectRegexRejectsOpenRedirects() {
+        assertThat("//evil.com".matches(LoginController.RELATIVE_URI_REGEX)).isFalse();
+        assertThat("/\\evil.com".matches(LoginController.RELATIVE_URI_REGEX)).isFalse();
+        assertThat("https://evil.com".matches(LoginController.RELATIVE_URI_REGEX)).isFalse();
+        assertThat("https:evil.com".matches(LoginController.RELATIVE_URI_REGEX)).isFalse();
+        assertThat("HTTPS://evil.com".matches(LoginController.RELATIVE_URI_REGEX)).isFalse();
+        assertThat("javascript:alert(1)".matches(LoginController.RELATIVE_URI_REGEX)).isFalse();
+        assertThat("next".matches(LoginController.RELATIVE_URI_REGEX)).isFalse();
+        assertThat("\\\\evil.com".matches(LoginController.RELATIVE_URI_REGEX)).isFalse();
+    }
 }

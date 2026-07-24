@@ -94,6 +94,10 @@ public class NimbusJwtParser implements JwtParser {
             log.warn("Missing header in access token.");
             return false;
         }
+        if (ObjectUtils.isEmpty(header.getKeyID())) {
+            log.warn("Missing key id (kid) in access token header.");
+            return false;
+        }
 
         return true;
     }

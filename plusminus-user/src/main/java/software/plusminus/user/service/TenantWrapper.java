@@ -25,6 +25,9 @@ public class TenantWrapper {
         } else {
             try {
                 return callable.call();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -42,7 +45,6 @@ public class TenantWrapper {
     }
 
     private String getTenantFromEmail(String email) {
-        //TODO use HostTenantProvider instead?
         int start = email.indexOf("+");
         int end = email.indexOf("@");
         if (start == -1 || end == -1 || start > end) {

@@ -15,6 +15,9 @@ import javax.annotation.Nullable;
 @Service
 public class BcryptUserService implements UserService {
 
+    @SuppressWarnings("java:S6437")
+    private static final String DUMMY_HASH = BCrypt.hashpw("timing-uniformity-placeholder", BCrypt.gensalt());
+
     private UserRepository userRepository;
 
     @Override
@@ -26,8 +29,11 @@ public class BcryptUserService implements UserService {
     @Override
     public User findUser(String email, String password) {
         User user = userRepository.findByEmail(email);
-        if (user == null || user.getStatus() == UserStatus.DEACTIVATED
-                || !BCrypt.checkpw(password, user.getPassword())) {
+        if (user == null || user.getStatus() == UserStatus.DEACTIVATED) {
+            runDummyCheck(password);
+            return null;
+        }
+        if (!BCrypt.checkpw(password, user.getPassword())) {
             return null;
         }
         return user;
@@ -37,5 +43,9 @@ public class BcryptUserService implements UserService {
     public void register(User user) {
         user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
         userRepository.save(user);
+    }
+
+    private void runDummyCheck(String password) {
+        BCrypt.checkpw(password, DUMMY_HASH);
     }
 }

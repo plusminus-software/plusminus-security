@@ -15,5 +15,7 @@ public class JwtProperties {
     private Resource privateKey;
     private Resource publicKey;
     private Duration expiration = Duration.ofDays(365L * 50);
+    private String keyId;
+    private String issuer;
 
 }
