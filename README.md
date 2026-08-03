@@ -15,7 +15,7 @@ Spring Boot auto-configuration (`spring.factories`).
 | `plusminus-authentication` | Request authentication: `HttpTokenContext` reads the token from the `Authorization` header or the `AUTH-TOKEN` cookie, with `@Public` annotation and URI-based checkers to mark endpoints that skip authentication. |
 | `plusminus-authorization` | Annotation-driven authorization: `@Role`, `@RolesAllowed` and `@LocalhostOnly` are enforced on controller methods by `Authorizer` implementations invoked from a request-scoped listener. |
 | `plusminus-jwt` | JWT implementation of `TokenProcessor` (`JwtProcessor` with generator/parser) built on Nimbus JOSE + JWT and BouncyCastle RSA keys. |
-| `plusminus-login` | `POST /login` (HTML and JSON variants) and `POST /logout` controllers; the login view template is configurable via `plusminus.login.template`. |
+| `plusminus-login` | `POST /login` (HTML and JSON variants) and `POST /logout` controllers; the login view template is configurable via `login.template`. |
 | `plusminus-user` | `User` JPA entity (roles, status, multi-tenancy support) with `UserRepository`, BCrypt-based `UserService` and a `CredentialService` implementation that authenticates against stored users. |
 | `plusminus-security` | Umbrella module that pulls in all of the above — add this single dependency to get the full stack. |
 

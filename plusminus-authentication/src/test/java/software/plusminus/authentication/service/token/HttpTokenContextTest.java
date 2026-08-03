@@ -8,7 +8,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpHeaders;
-import software.plusminus.authentication.properties.SecurityProperties;
+import software.plusminus.authentication.properties.AuthenticationProperties;
 import software.plusminus.context.Context;
 
 import java.util.Optional;
@@ -36,12 +36,12 @@ public class HttpTokenContextTest {
     @Captor
     private ArgumentCaptor<String> headerCaptor;
 
-    private SecurityProperties properties;
+    private AuthenticationProperties properties;
     private HttpTokenContext tokenContext;
 
     @Before
     public void setUp() {
-        properties = new SecurityProperties();
+        properties = new AuthenticationProperties();
         tokenContext = new HttpTokenContext(requestContext, responseContext, properties);
     }
 

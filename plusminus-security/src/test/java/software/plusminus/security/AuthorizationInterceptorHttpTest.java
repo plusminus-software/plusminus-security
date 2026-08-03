@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@TestPropertySource(properties = "plusminus.security.loginPage=/login")
+@TestPropertySource(properties = "authentication.loginPage=/login")
 public class AuthorizationInterceptorHttpTest {
 
     @LocalServerPort

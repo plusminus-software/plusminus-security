@@ -9,7 +9,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import software.plusminus.authentication.exception.NonPublicApiException;
 import software.plusminus.authentication.exception.NotFoundException;
-import software.plusminus.authentication.properties.SecurityProperties;
+import software.plusminus.authentication.properties.AuthenticationProperties;
 import software.plusminus.authentication.service.endpoint.PublicEndpointChecker;
 import software.plusminus.context.Context;
 import software.plusminus.scope.events.InvocationStartedEvent;
@@ -46,12 +46,12 @@ public class UnauthenticatedRequestListenerTest {
     @Mock
     private HttpServletResponse response;
 
-    private SecurityProperties properties;
+    private AuthenticationProperties properties;
     private UnauthenticatedRequestListener listener;
 
     @Before
     public void setUp() {
-        properties = new SecurityProperties();
+        properties = new AuthenticationProperties();
         listener = new UnauthenticatedRequestListener(securityContext, handlerContext,
                 httpServletRequestContext, httpServletResponseContext,
                 singletonList(publicEndpointChecker), properties);

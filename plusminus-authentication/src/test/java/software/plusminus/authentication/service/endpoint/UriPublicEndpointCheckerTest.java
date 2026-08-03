@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import software.plusminus.authentication.properties.SecurityProperties;
+import software.plusminus.authentication.properties.AuthenticationProperties;
 import software.plusminus.context.Context;
 
 import java.util.Arrays;
@@ -24,7 +24,7 @@ public class UriPublicEndpointCheckerTest {
     @Mock
     private HttpServletRequest request;
     @Spy
-    private SecurityProperties properties = new SecurityProperties();
+    private AuthenticationProperties properties = new AuthenticationProperties();
     @InjectMocks
     private UriPublicEndpointChecker checker;
 

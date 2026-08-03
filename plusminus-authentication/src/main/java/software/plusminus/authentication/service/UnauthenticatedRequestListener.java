@@ -10,7 +10,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import software.plusminus.authentication.exception.NonPublicApiException;
 import software.plusminus.authentication.exception.NotFoundException;
-import software.plusminus.authentication.properties.SecurityProperties;
+import software.plusminus.authentication.properties.AuthenticationProperties;
 import software.plusminus.authentication.service.endpoint.PublicEndpointChecker;
 import software.plusminus.context.Context;
 import software.plusminus.scope.events.InvocationStartedEvent;
@@ -33,7 +33,7 @@ public class UnauthenticatedRequestListener {
     private Context<HttpServletRequest> httpServletRequestContext;
     private Context<HttpServletResponse> httpServletResponseContext;
     private List<PublicEndpointChecker> publicEndpointCheckers;
-    private SecurityProperties properties;
+    private AuthenticationProperties properties;
 
     @EventListener
     public void invocationStarted(InvocationStartedEvent<HandlerMethod> event) {

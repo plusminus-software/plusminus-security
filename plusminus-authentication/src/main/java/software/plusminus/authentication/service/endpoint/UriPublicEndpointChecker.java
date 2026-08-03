@@ -2,7 +2,7 @@ package software.plusminus.authentication.service.endpoint;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import software.plusminus.authentication.properties.SecurityProperties;
+import software.plusminus.authentication.properties.AuthenticationProperties;
 import software.plusminus.context.Context;
 
 import java.util.Optional;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 public class UriPublicEndpointChecker implements PublicEndpointChecker {
 
     private Context<HttpServletRequest> httpServletRequestContext;
-    private SecurityProperties properties;
+    private AuthenticationProperties properties;
 
     @Override
     public boolean isPublicEndpoint() {

@@ -2,7 +2,7 @@ package software.plusminus.authentication.service.token;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import software.plusminus.authentication.properties.SecurityProperties;
+import software.plusminus.authentication.properties.AuthenticationProperties;
 import software.plusminus.authentication.util.CookieUtil;
 import software.plusminus.context.Context;
 import software.plusminus.security.service.TokenContext;
@@ -23,7 +23,7 @@ public class HttpTokenContext implements TokenContext {
 
     private Context<HttpServletRequest> requestContext;
     private Context<HttpServletResponse> responseContext;
-    private SecurityProperties properties;
+    private AuthenticationProperties properties;
 
     @Nullable
     @Override

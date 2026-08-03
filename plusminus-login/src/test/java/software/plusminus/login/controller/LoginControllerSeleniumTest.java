@@ -50,9 +50,9 @@ class LoginControllerSeleniumTest {
     void successfulLogin() {
         Page page = browser.go("/login");
 
-        page.find("#email").one().sendKeys(email);
-        page.find("#password").one().sendKeys(password);
-        page.find("#submit").one().click();
+        page.find("#email").sendKeys(email);
+        page.find("#password").sendKeys(password);
+        page.find("#submit").click();
 
         browser.currentPage().find().byText("div", "Logged in").one();
     }
@@ -61,9 +61,9 @@ class LoginControllerSeleniumTest {
     void badCredentials() {
         Page page = browser.go("/login");
 
-        page.find("#email").one().sendKeys("bad@email.com");
-        page.find("#password").one().sendKeys("bad-password");
-        page.find("#submit").one().click();
+        page.find("#email").sendKeys("bad@email.com");
+        page.find("#password").sendKeys("bad-password");
+        page.find("#submit").click();
 
         page.find().byText("div", "Invalid username or password!").one();
     }
@@ -71,7 +71,7 @@ class LoginControllerSeleniumTest {
     @Test
     void indexPageIsNotPublic() {
         Page page = browser.go("/");
-        String body = page.find("body").one().text();
+        String body = page.find("body").text();
         assertThat(body).doesNotContain("Index page")
                 .contains("Not Found");
     }
@@ -80,9 +80,9 @@ class LoginControllerSeleniumTest {
     void explicitRedirect() {
         Page page = browser.go("/login?redirect=explicit-redirect");
 
-        page.find("#email").one().sendKeys(email);
-        page.find("#password").one().sendKeys(password);
-        page.find("#submit").one().click();
+        page.find("#email").sendKeys(email);
+        page.find("#password").sendKeys(password);
+        page.find("#submit").click();
         
         assertThat(browser.url()).endsWith("explicit-redirect");
     }

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties("plusminus.login")
+@ConfigurationProperties("login")
 public class LoginProperties {
     private String template = "index";
 }

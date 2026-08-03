@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import software.plusminus.authentication.properties.SecurityProperties;
+import software.plusminus.authentication.properties.AuthenticationProperties;
 import software.plusminus.authentication.service.AuthenticatedRequestListener;
 
 import static software.plusminus.check.Checks.check;
@@ -19,7 +19,7 @@ public class AuthenticationAutoconfigTest {
     @Autowired(required = false)
     private AuthenticatedRequestListener authenticatedRequestListener;
     @Autowired(required = false)
-    private SecurityProperties securityProperties;
+    private AuthenticationProperties authenticationProperties;
     
     @Test
     public void defaultAuthenticationServiceIsPresent() {
@@ -27,7 +27,7 @@ public class AuthenticationAutoconfigTest {
     }
     
     @Test
-    public void securityPropertiesIsPresent() {
-        check(securityProperties).isNotNull();
+    public void authenticationPropertiesIsPresent() {
+        check(authenticationProperties).isNotNull();
     }
 }

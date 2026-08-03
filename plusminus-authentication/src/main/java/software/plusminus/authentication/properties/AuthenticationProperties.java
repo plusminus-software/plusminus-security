@@ -13,8 +13,8 @@ import java.util.List;
 @Data
 @Validated
 @Configuration
-@ConfigurationProperties("plusminus.security")
-public class SecurityProperties {
+@ConfigurationProperties("authentication")
+public class AuthenticationProperties {
     private List<@Regex String> openUris = Collections.emptyList();
     private String loginPage;
     private Duration cookieMaxAge = Duration.ofDays(365L * 50);

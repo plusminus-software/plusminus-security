@@ -9,7 +9,7 @@ import java.time.Duration;
 
 @Data
 @Configuration
-@ConfigurationProperties("plusminus.jwt")
+@ConfigurationProperties("jwt")
 public class JwtProperties {
 
     private Resource privateKey;

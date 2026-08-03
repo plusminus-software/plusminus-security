@@ -46,16 +46,16 @@ class LogoutControllerSeleniumTest {
 
     @Test
     void logoutClearsCookies() {
-        page.find("#logout").one().click();
-        page.find("#logout").none();
+        page.find("#logout").click();
+        page.find().bySelector("#logout").none();
 
         check(browser.cookies().getAll()).isEmpty();
     }
 
     @Test
     void logoutRedirectsToIndexPage() {
-        page.find("#logout").one().click();
-        page.find("#logout").none();
+        page.find("#logout").click();
+        page.find().bySelector("#logout").none();
 
         check(browser.url()).is("http://localhost:" + port + "/");
     }

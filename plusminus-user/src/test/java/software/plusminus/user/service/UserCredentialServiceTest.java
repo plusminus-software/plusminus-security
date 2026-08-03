@@ -49,11 +49,11 @@ class UserCredentialServiceTest {
         User user = createUser();
         Page page = browser.go("/login");
 
-        page.find("#email").one().sendKeys(email);
-        page.find("#password").one().sendKeys(password);
-        page.find("#submit").one().click();
+        page.find("#email").sendKeys(email);
+        page.find("#password").sendKeys(password);
+        page.find("#submit").click();
 
-        String json = browser.currentPage().find("body").one().text();
+        String json = browser.currentPage().find("body").text();
         Security security = objectMapper.readValue(json, Security.class);
         assertThat(security.getUsername()).isEqualTo(user.getUsername());
         assertThat(security.getRoles()).containsExactly("admin");
