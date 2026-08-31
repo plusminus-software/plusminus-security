@@ -44,6 +44,11 @@
             <artifactId>plusminus-jwt</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>software.plusminus</groupId>
+            <artifactId>plusminus-visible</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- TEST -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

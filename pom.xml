@@ -26,6 +26,7 @@
         <module>plusminus-user</module>
         <module>plusminus-login</module>
         <module>plusminus-jwt</module>
+        <module>plusminus-visible</module>
         <module>plusminus-security</module>
     </modules>
 
