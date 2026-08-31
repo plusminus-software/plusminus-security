@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import software.plusminus.visible.jackson.VisibleSerializerModifier;
-import software.plusminus.visible.service.VisibilityService;
+import software.plusminus.visible.service.VisibleService;
 
 /**
  * Registers the visibility filter with every {@code ObjectMapper} Spring Boot builds.
@@ -21,9 +21,9 @@ import software.plusminus.visible.service.VisibilityService;
 public class VisibleAutoconfig {
 
     @Bean
-    public Module visibleModule(VisibilityService visibilityService) {
+    public Module visibleModule(VisibleService visibleService) {
         SimpleModule module = new SimpleModule("plusminus-visible");
-        module.setSerializerModifier(new VisibleSerializerModifier(visibilityService));
+        module.setSerializerModifier(new VisibleSerializerModifier(visibleService));
         return module;
     }
 }

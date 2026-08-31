@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import software.plusminus.visible.annotation.Visible;
-import software.plusminus.visible.service.VisibilityService;
+import software.plusminus.visible.service.VisibleService;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
@@ -17,47 +17,45 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Wraps every property of an opted-in class so that {@link Visible} decides, per request, whether
- * it is written.
+ * Wraps restricted properties so that {@link Visible} decides per request whether to write them.
  *
- * <p>Classes that never mention {@link Visible} are returned untouched - see
- * {@link VisibilityService#supportsVisibility}. Without that, switching this on would empty every DTO in
- * the application at once.
+ * <p>Unrestricted properties are left as they are. So are all properties of a class that does not
+ * use {@link Visible} are visible by default - see {@link VisibleService#hasVisibility}.
  */
 public class VisibleSerializerModifier extends BeanSerializerModifier {
 
     private static final long serialVersionUID = 1L;
 
-    private final transient VisibilityService visibilityService;
+    private final transient VisibleService visibleService;
 
-    public VisibleSerializerModifier(VisibilityService visibilityService) {
-        this.visibilityService = visibilityService;
+    public VisibleSerializerModifier(VisibleService visibleService) {
+        this.visibleService = visibleService;
     }
 
     @Override
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
                                                      BeanDescription beanDescription,
                                                      List<BeanPropertyWriter> properties) {
-        Class<?> beanClass = beanDescription.getBeanClass();
-        if (!visibilityService.supportsVisibility(beanClass)) {
+        if (!visibleService.hasVisibility(beanDescription.getBeanClass())) {
             return properties;
         }
         Map<String, BeanPropertyDefinition> definitions = definitions(beanDescription);
         List<BeanPropertyWriter> wrapped = new ArrayList<>(properties.size());
         for (BeanPropertyWriter property : properties) {
-            wrapped.add(wrap(property, definitions.get(property.getName()), beanClass));
+            wrapped.add(wrap(property, definitions.get(property.getName())));
         }
         return wrapped;
     }
 
-    private BeanPropertyWriter wrap(BeanPropertyWriter property,
-                                    BeanPropertyDefinition definition,
-                                    Class<?> beanClass) {
-        Set<String> roles = visibilityService.requiredRoles(beanClass,
+    private BeanPropertyWriter wrap(BeanPropertyWriter property, BeanPropertyDefinition definition) {
+        Set<String> roles = visibleService.requiredRoles(
                 annotated(definition == null ? null : definition.getField()),
                 annotated(definition == null ? null : definition.getGetter()),
                 annotated(property.getMember()));
-        return new VisiblePropertyWriter(property, visibilityService, roles);
+        if (roles == null) {
+            return property;
+        }
+        return new VisiblePropertyWriter(property, visibleService, roles);
     }
 
     private Map<String, BeanPropertyDefinition> definitions(BeanDescription beanDescription) {

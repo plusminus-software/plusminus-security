@@ -3,7 +3,7 @@ package software.plusminus.visible.jackson;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import software.plusminus.visible.service.VisibilityService;
+import software.plusminus.visible.service.VisibleService;
 
 import java.util.Set;
 
@@ -20,18 +20,18 @@ public class VisiblePropertyWriter extends BeanPropertyWriter {
 
     private static final long serialVersionUID = 1L;
 
-    private final transient VisibilityService visibilityService;
+    private final transient VisibleService visibleService;
     private final Set<String> requiredRoles;
 
-    VisiblePropertyWriter(BeanPropertyWriter base, VisibilityService visibilityService, Set<String> requiredRoles) {
+    VisiblePropertyWriter(BeanPropertyWriter base, VisibleService visibleService, Set<String> requiredRoles) {
         super(base);
-        this.visibilityService = visibilityService;
+        this.visibleService = visibleService;
         this.requiredRoles = requiredRoles;
     }
 
     @Override
     public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider provider) throws Exception {
-        if (!visibilityService.isAllowed(requiredRoles)) {
+        if (!visibleService.isAllowed(requiredRoles)) {
             return;
         }
         super.serializeAsField(bean, gen, provider);
@@ -40,7 +40,7 @@ public class VisiblePropertyWriter extends BeanPropertyWriter {
     /** In an array a position cannot be dropped without shifting the rest, so it becomes null. */
     @Override
     public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider provider) throws Exception {
-        if (!visibilityService.isAllowed(requiredRoles)) {
+        if (!visibleService.isAllowed(requiredRoles)) {
             serializeAsPlaceholder(bean, gen, provider);
             return;
         }

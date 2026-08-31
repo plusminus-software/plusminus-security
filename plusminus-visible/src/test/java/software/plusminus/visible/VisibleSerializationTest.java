@@ -3,16 +3,16 @@ package software.plusminus.visible;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.junit.Before;
 import org.junit.Test;
 import software.plusminus.context.Context;
 import software.plusminus.security.Security;
 import software.plusminus.visible.annotation.Visible;
-import software.plusminus.visible.fixture.Integration;
-import software.plusminus.visible.fixture.PlainDto;
+import software.plusminus.visible.fixture.Child;
+import software.plusminus.visible.fixture.Dto;
+import software.plusminus.visible.fixture.PublicChild;
 import software.plusminus.visible.jackson.VisibleSerializerModifier;
-import software.plusminus.visible.service.VisibilityService;
+import software.plusminus.visible.service.VisibleService;
 
 import java.io.UncheckedIOException;
 import java.util.Collections;
@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static software.plusminus.check.Checks.check;
 
+@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class VisibleSerializationTest {
 
     private Security security;
@@ -29,72 +30,109 @@ public class VisibleSerializationTest {
     @Before
     public void setUp() {
         security = null;
-        Integration.resetSecretReads();
+        Child.resetIncomeReads();
         // Not Context.of(supplier): that memoizes in a ThreadLocal, so the role would never change.
         Context<Security> context = () -> security;
         SimpleModule module = new SimpleModule("plusminus-visible");
-        module.setSerializerModifier(new VisibleSerializerModifier(new VisibilityService(context)));
+        module.setSerializerModifier(new VisibleSerializerModifier(new VisibleService(context)));
         mapper = new ObjectMapper().registerModule(module);
     }
 
     /**
-     * An anonymous caller sees only what was opened to everyone: the field annotated with
-     * {@link Visible#ALL}, and the getter that carries the annotation because it has no field to
-     * put it on. Everything a role opened stays out, whether the role was named on the member or
-     * inherited from the base class.
+     * An anonymous caller sees what was opened to everyone and also what nobody restricted at
+     * all. Only the members a role was named on stay out.
      */
     @Test
-    public void showsOnlyPublicMembersToAnonymousCaller() {
-        String json = json(integration());
+    public void showsUnrestrictedMembersToAnonymousCaller() {
+        String json = json(child());
 
         check(json)
                 .contains("\"merchantLogin\":\"shop\"")
                 .contains("\"displayName\":\"shop's shop\"")
+                .contains("\"merchantCity\":\"Kyiv\"")
                 .doesNotContain("incomePrice")
-                .doesNotContain("topSecret")
-                .doesNotContain("merchantSecretKey");
+                .doesNotContain("topSecret");
     }
 
-    /**
-     * An admin additionally sees the field its own role opened, the one the base class declares,
-     * and the unannotated field the base class's role covers by standing in for it.
-     */
     @Test
-    public void showsRoleMembersToThatRole() {
-        security = withRoles(Visible.ADMIN);
+    public void doesNotInheritClassLevelRuleIntoSubclass() {
+        String json = json(child());
 
-        String json = json(integration());
+        check(json).contains("merchantCity");
+    }
+
+    @Test
+    public void letsAFieldOverrideItsClassLevelRule() {
+        String json = json(child());
+
+        check(json).contains("\"id\":7");
+    }
+
+    @Test
+    public void readsTheAnnotationFromAGetter() {
+        callerHasRoles(Visible.ADMIN);
+
+        String json = json(child());
+
+        check(json).contains("incomePrice");
+    }
+
+    @Test
+    public void showsRestrictedMembersToThatRole() {
+        callerHasRoles(Visible.ADMIN);
+
+        String json = json(child());
 
         check(json)
                 .contains("incomePrice")
                 .contains("topSecret")
-                .contains("merchantSecretKey");
+                .contains("internalNote");
     }
 
-    /** A class that never mentions the annotation is somebody else's DTO, and is left alone. */
     @Test
     public void leavesUnannotatedClassesAlone() {
-        String json = json(new PlainDto());
+        String json = json(new Dto());
 
         check(json).contains("anything");
     }
 
     @Test
     public void matchesRolesIgnoringCase() {
-        security = withRoles("Admin");
+        callerHasRoles("Admin");
 
-        String json = json(integration());
+        String json = json(child());
 
         check(json).contains("incomePrice");
     }
 
     @Test
     public void ignoresAnUnrelatedRole() {
-        security = withRoles("manager");
+        callerHasRoles("manager");
 
-        String json = json(integration());
+        String json = json(child());
 
         check(json).doesNotContain("incomePrice");
+    }
+
+    @Test
+    public void keepsParentClassRuleInsideAMorePermissiveChild() {
+        String json = json(publicChild());
+
+        check(json).doesNotContain("internalNote");
+    }
+
+    @Test
+    public void letsAChildTakeOverAPropertyByOverridingItsGetter() {
+        String json = json(publicChild());
+
+        check(json).contains("\"topSecret\":\"classified\"");
+    }
+
+    @Test
+    public void doesNotWidenWhenTheOverridingChildStatesNoRule() {
+        String json = json(child());
+
+        check(json).doesNotContain("topSecret");
     }
 
     /**
@@ -103,11 +141,11 @@ public class VisibleSerializationTest {
      */
     @Test
     public void doesNotLetTheFirstCallerFixTheShapeForTheNext() {
-        security = withRoles(Visible.ADMIN);
-        String asAdmin = json(integration());
+        callerHasRoles(Visible.ADMIN);
+        String asAdmin = json(child());
 
         security = null;
-        String asAnonymous = json(integration());
+        String asAnonymous = json(child());
 
         check(asAdmin).contains("incomePrice");
         check(asAnonymous).doesNotContain("incomePrice");
@@ -116,14 +154,14 @@ public class VisibleSerializationTest {
     /** A hidden property must not call its getter -- that is what saves a lazy JPA association. */
     @Test
     public void neverReadsAHiddenProperty() {
-        json(integration());
-        int readsWhileHidden = Integration.secretReads();
+        json(child());
+        int readsWhileHidden = Child.incomeReads();
 
-        security = withRoles(Visible.ADMIN);
-        json(integration());
+        callerHasRoles(Visible.ADMIN);
+        json(child());
 
         check(readsWhileHidden).is(0);
-        check(Integration.secretReads()).is(1);
+        check(Child.incomeReads()).is(1);
     }
 
     private String json(Object value) {
@@ -134,20 +172,28 @@ public class VisibleSerializationTest {
         }
     }
 
-    // A fake secret is the whole point of the fixture: the test asserts it does not get out.
-    @SuppressFBWarnings("HARD_CODE_PASSWORD")
-    private Integration integration() {
-        Integration integration = new Integration();
-        integration.setMerchantLogin("shop");
-        integration.setMerchantSecretKey("s3cr3t");
-        integration.setIncomePrice(1000L);
-        integration.setTopSecret("classified");
-        return integration;
-    }
-
-    private Security withRoles(String... roles) {
+    private void callerHasRoles(String... roles) {
         Set<String> set = new HashSet<>();
         Collections.addAll(set, roles);
-        return Security.builder().username("someone").roles(set).build();
+        security = Security.builder().username("someone").roles(set).build();
+    }
+
+    private Child child() {
+        Child child = new Child();
+        child.setId(7L);
+        child.setMerchantLogin("shop");
+        child.setMerchantCity("Kyiv");
+        child.setIncomePrice(1000L);
+        child.setTopSecret("classified");
+        child.setInternalNote("note");
+        return child;
+    }
+
+    private PublicChild publicChild() {
+        PublicChild child = new PublicChild();
+        child.setId(7L);
+        child.setTopSecret("classified");
+        child.setInternalNote("note");
+        return child;
     }
 }

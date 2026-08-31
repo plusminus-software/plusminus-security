@@ -9,6 +9,7 @@ import software.plusminus.util.MethodUtils;
 import software.plusminus.visible.annotation.Visible;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -18,17 +19,17 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 @Component
-public class VisibilityService {
+public class VisibleService {
 
     private final Context<Security> securityContext;
-    private final Map<Class<?>, Boolean> hasVisibility = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Boolean> typesWithVisibility = new ConcurrentHashMap<>();
 
-    public VisibilityService(Context<Security> securityContext) {
+    public VisibleService(Context<Security> securityContext) {
         this.securityContext = securityContext;
     }
 
-    public boolean supportsVisibility(Class<?> type) {
-        return hasVisibility.computeIfAbsent(type, t ->
+    public boolean hasVisibility(Class<?> type) {
+        return typesWithVisibility.computeIfAbsent(type, t ->
                 AnnotationUtils.findAnnotation(Visible.class, t) != null
                         || FieldUtils.getFieldsStream(t).anyMatch(
                                 field -> field.isAnnotationPresent(Visible.class))
@@ -38,10 +39,10 @@ public class VisibilityService {
     }
 
     @Nullable
-    public Set<String> requiredRoles(@Nullable Class<?> declaringType, AnnotatedElement... members) {
+    public Set<String> requiredRoles(AnnotatedElement... members) {
         Visible visible = AnnotationUtils.getAnnotation(Visible.class, members);
-        if (visible == null && declaringType != null) {
-            visible = AnnotationUtils.findAnnotation(Visible.class, declaringType);
+        if (visible == null) {
+            visible = findVisible(members);
         }
         if (visible == null) {
             return null;
@@ -52,7 +53,10 @@ public class VisibilityService {
     }
 
     public boolean isAllowed(@Nullable Set<String> requiredRoles) {
-        if (requiredRoles == null || requiredRoles.isEmpty()) {
+        if (requiredRoles == null) {
+            return true;
+        }
+        if (requiredRoles.isEmpty()) {
             return false;
         }
         if (requiredRoles.contains(Visible.ALL)) {
@@ -65,5 +69,23 @@ public class VisibilityService {
         return security.getRoles().stream()
                 .map(role -> role.toLowerCase(Locale.ROOT))
                 .anyMatch(requiredRoles::contains);
+    }
+
+    @Nullable
+    private static Visible findVisible(AnnotatedElement... members) {
+        Class<?> chosen = null;
+        Visible visible = null;
+        for (AnnotatedElement member : members) {
+            if (!(member instanceof Member)) {
+                continue;
+            }
+            Class<?> declaringType = ((Member) member).getDeclaringClass();
+            Visible declared = declaringType.getDeclaredAnnotation(Visible.class);
+            if (declared != null && (chosen == null || chosen.isAssignableFrom(declaringType))) {
+                chosen = declaringType;
+                visible = declared;
+            }
+        }
+        return visible;
     }
 }
