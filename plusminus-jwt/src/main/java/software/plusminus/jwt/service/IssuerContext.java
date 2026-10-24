@@ -21,7 +21,7 @@ public class IssuerContext implements Context<String> {
     private JwtProperties jwtProperties;
 
     @Override
-    public String get() {
+    public String supply() {
         if (StringUtils.hasText(jwtProperties.getIssuer())) {
             return jwtProperties.getIssuer();
         }
